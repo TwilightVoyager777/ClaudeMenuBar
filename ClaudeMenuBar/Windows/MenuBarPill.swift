@@ -22,42 +22,32 @@ final class MenuBarPill {
         statusItem.length = NSStatusItem.squareLength
         guard let button = statusItem.button else { return }
         button.subviews.forEach { $0.removeFromSuperview() }
-        button.image = Self.makeKeycapIcon()
+        button.image = Self.makeTerminalIcon()
     }
 
-    /// Draws a keyboard keycap as a template image.
-    /// Uses fill + clear-blend cutout to create a solid rim with 3-D depth strip at the bottom.
-    private static func makeKeycapIcon(size: CGFloat = 17) -> NSImage {
+    /// Draws a ">_" terminal prompt as a template image.
+    private static func makeTerminalIcon(size: CGFloat = 17) -> NSImage {
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { _ in
-            guard let ctx = NSGraphicsContext.current?.cgContext else { return false }
+            NSColor.black.setStroke()
+            let lw: CGFloat = 1.7
 
-            // Key proportions: wide and short, like a real key
-            let kw: CGFloat = 15.5
-            let kh: CGFloat = 10.5
-            let kx: CGFloat = (size - kw) / 2   // 0.75
-            let ky: CGFloat = (size - kh) / 2   // 3.25
+            // ">" chevron
+            let chevron = NSBezierPath()
+            chevron.move(to:  NSPoint(x: 4.5, y: 12.5))
+            chevron.line(to:  NSPoint(x: 9.5,  y: 8.5))
+            chevron.line(to:  NSPoint(x: 4.5, y: 4.5))
+            chevron.lineWidth      = lw
+            chevron.lineCapStyle   = .round
+            chevron.lineJoinStyle  = .round
+            chevron.stroke()
 
-            // 1. Fill the full key body
-            ctx.setFillColor(NSColor.black.cgColor)
-            let body = NSBezierPath(
-                roundedRect: NSRect(x: kx, y: ky, width: kw, height: kh),
-                xRadius: 3.0, yRadius: 3.0
-            )
-            body.fill()
-
-            // 2. Carve out the recessed top face with .clear blend
-            //    Side & top inset: 2 pt (thin rim)
-            //    Bottom inset: 3.5 pt (thick = visible depth/side face)
-            let si: CGFloat = 2.0    // side + top inset
-            let di: CGFloat = 3.5   // bottom depth inset
-            ctx.setBlendMode(.clear)
-            let face = NSBezierPath(
-                roundedRect: NSRect(x: kx + si, y: ky + di,
-                                    width: kw - si * 2, height: kh - si - di),
-                xRadius: 1.5, yRadius: 1.5
-            )
-            face.fill()
-            ctx.setBlendMode(.normal)
+            // "_" cursor (sits at baseline, right of chevron)
+            let cursor = NSBezierPath()
+            cursor.move(to:  NSPoint(x: 11.0, y: 5.5))
+            cursor.line(to:  NSPoint(x: 15.5, y: 5.5))
+            cursor.lineWidth     = lw
+            cursor.lineCapStyle  = .round
+            cursor.stroke()
 
             return true
         }
