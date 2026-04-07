@@ -7,10 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		163387D62F6A7BB41B7E6E2C /* KeystrokeReplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D2791BC015A2EAE1685D4E2 /* KeystrokeReplay.swift */; };
+		1CD80E82952052DDCBEAAFCB /* EventRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9E8A4A3FDECB31952F0EDA /* EventRouterTests.swift */; };
 		25ABBBD5901878F096FFE877 /* ClaudeMenuBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932F15EFA93E8111CD1C6B08 /* ClaudeMenuBarApp.swift */; };
+		27C332284C740E44E5E8A17D /* DropdownPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5837233F16E45A15F42A7120 /* DropdownPanel.swift */; };
+		2ADC540193C2BF50FA29EDE2 /* WorkingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4326172AEE0D14C0E78CA3 /* WorkingView.swift */; };
+		2CF98745230CD5F3ADC78C34 /* DropdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00FC295E652CD3D6C6E2DF1 /* DropdownView.swift */; };
+		52D831D558E76D9E40F58ED7 /* HTTPServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 515BEBDBB919941FF540D8A5 /* HTTPServer.swift */; };
+		5F0EF571153B8D7DFE11CDB8 /* PillPositioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 937F3BAE17EE5D8CB46721F5 /* PillPositioner.swift */; };
 		792AF075460969B116419DE7 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8ACDCA608F227D4569B88F8 /* AppState.swift */; };
+		8BD8E2D1B5E70A247DDFD601 /* PillPositionerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F84EECBF3BEA19498E2F3A64 /* PillPositionerTests.swift */; };
+		9C33762D155506FB96E6A40D /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA8B1B5807D4101EEE227979 /* MenuBarController.swift */; };
+		9D555ABEBAAF6E96B0F03605 /* StateManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FA23AD4AC2CB47F09470946 /* StateManagerTests.swift */; };
+		9DC10B0284F30F5F0FC29F22 /* GlobalHotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA88D1B42C1809A25BEF89E /* GlobalHotkeys.swift */; };
+		A51F9D875D1BFE0A8F16CBE8 /* StateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AEC89371B5B1F97EC31A7EA /* StateManager.swift */; };
+		B89E320C70B28BB488763427 /* MenuBarPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932DF3F78C6330F3EF093F53 /* MenuBarPill.swift */; };
+		BDDEB9344328E2A2E7F104D0 /* WaitingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 273041FD5F45F9E4E2044B3B /* WaitingView.swift */; };
 		BDF246ECBBD94493B1773CAF /* ModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA65A9694CE80D8F66A77759 /* ModelsTests.swift */; };
 		D6A0DDD803F521E2FA6EA6FB /* ClaudeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2D3D80C757868CA43B0AB1 /* ClaudeEvent.swift */; };
+		ECE5D22C4ADF57C3D0928AA7 /* EventRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F15D0EF2A1B5694F9A329BD2 /* EventRouter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +40,28 @@
 
 /* Begin PBXFileReference section */
 		161EB15764ADB4EA767D6E64 /* ClaudeMenuBar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClaudeMenuBar.entitlements; sourceTree = "<group>"; };
+		1E9E8A4A3FDECB31952F0EDA /* EventRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRouterTests.swift; sourceTree = "<group>"; };
+		273041FD5F45F9E4E2044B3B /* WaitingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitingView.swift; sourceTree = "<group>"; };
+		3F4326172AEE0D14C0E78CA3 /* WorkingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkingView.swift; sourceTree = "<group>"; };
 		4C2D3D80C757868CA43B0AB1 /* ClaudeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeEvent.swift; sourceTree = "<group>"; };
+		515BEBDBB919941FF540D8A5 /* HTTPServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPServer.swift; sourceTree = "<group>"; };
+		5837233F16E45A15F42A7120 /* DropdownPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropdownPanel.swift; sourceTree = "<group>"; };
 		5ACD114D83E734C9FEE49421 /* ClaudeMenuBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeMenuBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5D2791BC015A2EAE1685D4E2 /* KeystrokeReplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystrokeReplay.swift; sourceTree = "<group>"; };
+		5FA88D1B42C1809A25BEF89E /* GlobalHotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeys.swift; sourceTree = "<group>"; };
 		6500ED2941DA1675EA5134EB /* ClaudeMenuBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClaudeMenuBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		694587C539A85AF79167A8F5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6AEC89371B5B1F97EC31A7EA /* StateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManager.swift; sourceTree = "<group>"; };
+		7FA23AD4AC2CB47F09470946 /* StateManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateManagerTests.swift; sourceTree = "<group>"; };
+		932DF3F78C6330F3EF093F53 /* MenuBarPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPill.swift; sourceTree = "<group>"; };
 		932F15EFA93E8111CD1C6B08 /* ClaudeMenuBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeMenuBarApp.swift; sourceTree = "<group>"; };
+		937F3BAE17EE5D8CB46721F5 /* PillPositioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillPositioner.swift; sourceTree = "<group>"; };
+		C00FC295E652CD3D6C6E2DF1 /* DropdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropdownView.swift; sourceTree = "<group>"; };
+		CA8B1B5807D4101EEE227979 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
 		D8ACDCA608F227D4569B88F8 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		DA65A9694CE80D8F66A77759 /* ModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsTests.swift; sourceTree = "<group>"; };
+		F15D0EF2A1B5694F9A329BD2 /* EventRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRouter.swift; sourceTree = "<group>"; };
+		F84EECBF3BEA19498E2F3A64 /* PillPositionerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillPositionerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -44,6 +74,27 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		427B3E5259363D3282B2DD2E /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F15D0EF2A1B5694F9A329BD2 /* EventRouter.swift */,
+				5FA88D1B42C1809A25BEF89E /* GlobalHotkeys.swift */,
+				515BEBDBB919941FF540D8A5 /* HTTPServer.swift */,
+				5D2791BC015A2EAE1685D4E2 /* KeystrokeReplay.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		4908963A32DB36CF3EC48955 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C00FC295E652CD3D6C6E2DF1 /* DropdownView.swift */,
+				273041FD5F45F9E4E2044B3B /* WaitingView.swift */,
+				3F4326172AEE0D14C0E78CA3 /* WorkingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		4F032275336270E5D2F4A0A1 = {
 			isa = PBXGroup;
 			children = (
@@ -53,10 +104,29 @@
 			);
 			sourceTree = "<group>";
 		};
+		5BF3EF81B9F96881E37EDFC5 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				6AEC89371B5B1F97EC31A7EA /* StateManager.swift */,
+			);
+			path = State;
+			sourceTree = "<group>";
+		};
+		64A9EA75B0FFEAD212700CA7 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				937F3BAE17EE5D8CB46721F5 /* PillPositioner.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		BDA261AC3BACA8395EAED1AF /* ClaudeMenuBarTests */ = {
 			isa = PBXGroup;
 			children = (
+				1E9E8A4A3FDECB31952F0EDA /* EventRouterTests.swift */,
 				DA65A9694CE80D8F66A77759 /* ModelsTests.swift */,
+				F84EECBF3BEA19498E2F3A64 /* PillPositionerTests.swift */,
+				7FA23AD4AC2CB47F09470946 /* StateManagerTests.swift */,
 			);
 			path = ClaudeMenuBarTests;
 			sourceTree = "<group>";
@@ -76,9 +146,24 @@
 				161EB15764ADB4EA767D6E64 /* ClaudeMenuBar.entitlements */,
 				932F15EFA93E8111CD1C6B08 /* ClaudeMenuBarApp.swift */,
 				694587C539A85AF79167A8F5 /* Info.plist */,
+				CA8B1B5807D4101EEE227979 /* MenuBarController.swift */,
+				64A9EA75B0FFEAD212700CA7 /* Helpers */,
 				08FD93110CE5AE7A7641D0BD /* Models */,
+				427B3E5259363D3282B2DD2E /* Services */,
+				5BF3EF81B9F96881E37EDFC5 /* State */,
+				4908963A32DB36CF3EC48955 /* Views */,
+				DE59C66E012414FE0E2FFBC6 /* Windows */,
 			);
 			path = ClaudeMenuBar;
+			sourceTree = "<group>";
+		};
+		DE59C66E012414FE0E2FFBC6 /* Windows */ = {
+			isa = PBXGroup;
+			children = (
+				5837233F16E45A15F42A7120 /* DropdownPanel.swift */,
+				932DF3F78C6330F3EF093F53 /* MenuBarPill.swift */,
+			);
+			path = Windows;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -161,6 +246,18 @@
 				792AF075460969B116419DE7 /* AppState.swift in Sources */,
 				D6A0DDD803F521E2FA6EA6FB /* ClaudeEvent.swift in Sources */,
 				25ABBBD5901878F096FFE877 /* ClaudeMenuBarApp.swift in Sources */,
+				27C332284C740E44E5E8A17D /* DropdownPanel.swift in Sources */,
+				2CF98745230CD5F3ADC78C34 /* DropdownView.swift in Sources */,
+				ECE5D22C4ADF57C3D0928AA7 /* EventRouter.swift in Sources */,
+				9DC10B0284F30F5F0FC29F22 /* GlobalHotkeys.swift in Sources */,
+				52D831D558E76D9E40F58ED7 /* HTTPServer.swift in Sources */,
+				163387D62F6A7BB41B7E6E2C /* KeystrokeReplay.swift in Sources */,
+				9C33762D155506FB96E6A40D /* MenuBarController.swift in Sources */,
+				B89E320C70B28BB488763427 /* MenuBarPill.swift in Sources */,
+				5F0EF571153B8D7DFE11CDB8 /* PillPositioner.swift in Sources */,
+				A51F9D875D1BFE0A8F16CBE8 /* StateManager.swift in Sources */,
+				BDDEB9344328E2A2E7F104D0 /* WaitingView.swift in Sources */,
+				2ADC540193C2BF50FA29EDE2 /* WorkingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,7 +265,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1CD80E82952052DDCBEAAFCB /* EventRouterTests.swift in Sources */,
 				BDF246ECBBD94493B1773CAF /* ModelsTests.swift in Sources */,
+				8BD8E2D1B5E70A247DDFD601 /* PillPositionerTests.swift in Sources */,
+				9D555ABEBAAF6E96B0F03605 /* StateManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +363,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -299,6 +400,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

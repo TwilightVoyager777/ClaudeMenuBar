@@ -4,18 +4,17 @@ import SwiftUI
 final class DropdownPanel {
     private var panel: NSPanel?
 
-    func show<Content: View>(view: Content, anchorOrigin: NSPoint, anchorWidth: CGFloat) {
+    func show<Content: View>(view: Content, below buttonFrame: NSRect) {
         let width: CGFloat = 240
-        let x = anchorOrigin.x
         let estimatedHeight: CGFloat = 120
-        let y = anchorOrigin.y - estimatedHeight
+        let x = buttonFrame.midX - width / 2
+        let y = buttonFrame.minY - estimatedHeight
         let frame = NSRect(x: x, y: y, width: width, height: estimatedHeight)
 
         if panel == nil {
             panel = makePanel()
         }
-        let hostingView = NSHostingView(rootView: view)
-        panel!.contentView = hostingView
+        panel!.contentView = NSHostingView(rootView: view)
         panel!.setFrame(frame, display: true)
         panel!.orderFrontRegardless()
     }

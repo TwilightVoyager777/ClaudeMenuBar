@@ -4,7 +4,6 @@ import Combine
 
 @MainActor
 final class MenuBarController: NSObject, ObservableObject {
-    private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let stateManager = StateManager()
     private let eventRouter = EventRouter()
     private let httpServer = HTTPServer()
@@ -15,34 +14,44 @@ final class MenuBarController: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        setupStatusItem()
+        setupMenu()
         setupHTTPServer()
         setupHotkeys()
         observeState()
     }
 
-    private func setupStatusItem() {
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "dot.radiowaves.left.and.right",
-                                   accessibilityDescription: "ClaudeMenuBar")
-            button.action = #selector(statusBarButtonClicked)
-            button.target = self
-        }
-
+    private func setupMenu() {
         let menu = NSMenu()
+        menu.addItem(withTitle: "Test: Working",   action: #selector(testWorking),      keyEquivalent: "1").target = self
+        menu.addItem(withTitle: "Test: WaitInput", action: #selector(testWaitingInput), keyEquivalent: "2").target = self
+        menu.addItem(withTitle: "Test: Complete",  action: #selector(testComplete),     keyEquivalent: "3").target = self
+        menu.addItem(withTitle: "Test: Silent",    action: #selector(testSilent),       keyEquivalent: "0").target = self
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit ClaudeMenuBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
-        statusItem.menu = menu
+        pill.statusItem.menu = menu
     }
 
-    @objc private func statusBarButtonClicked() {}
+    @objc private func testWorking()      { stateManager.transition(to: .working(tool: "Bash", detail: "ls -la")) }
+    @objc private func testWaitingInput() { stateManager.transition(to: .waitingInput(message: "Allow this action?", options: InputOption.defaults)) }
+    @objc private func testComplete()     { stateManager.transition(to: .complete) }
+    @objc private func testSilent()       { stateManager.transition(to: .silent) }
 
     private func setupHTTPServer() {
         httpServer.onEventData = { [weak self] data in
             guard let self else { return }
-            guard let event = try? JSONDecoder().decode(ClaudeEvent.self, from: data) else { return }
+            let raw = String(data: data, encoding: .utf8) ?? "<invalid utf8>"
+            NSLog("[CMB] received data: %@", raw)
+            guard let event = try? JSONDecoder().decode(ClaudeEvent.self, from: data) else {
+                NSLog("[CMB] JSON decode failed")
+                return
+            }
+            NSLog("[CMB] decoded event: %@", event.event)
             Task { @MainActor in
                 if let newState = self.eventRouter.route(event) {
+                    NSLog("[CMB] routing to state: %@", String(describing: newState))
                     self.stateManager.transition(to: newState)
+                } else {
+                    NSLog("[CMB] eventRouter returned nil for event: %@", event.event)
                 }
             }
         }
@@ -73,7 +82,7 @@ final class MenuBarController: NSObject, ObservableObject {
     }
 
     private func render(state: AppState) {
-        guard let screen = NSScreen.main else { return }
+        NSLog("[CMB] render called with state: %@", String(describing: state))
 
         switch state {
         case .silent:
@@ -84,27 +93,25 @@ final class MenuBarController: NSObject, ObservableObject {
         case .working(let tool, let detail):
             hotkeys.disable()
             dropdown.hide()
-            let view = WorkingView(tool: tool, detail: detail)
-            let width: CGFloat = CGFloat(tool.count + detail.count) * 6 + 60
-            pill.show(view: view, on: screen, pillWidth: min(max(width, 120), 300))
+            let width = min(max(CGFloat(tool.count + detail.count) * 6 + 60, 120), 300)
+            pill.show(view: WorkingView(tool: tool, detail: detail), pillWidth: width)
 
         case .waitingInput(let message, let options):
             hotkeys.enable()
-            let anchorView = WaitingAnchorView()
-            let origin = PillPositioner.pillOrigin(on: screen, pillWidth: 160)
-            pill.show(view: anchorView, on: screen, pillWidth: 160)
-            let dropView = DropdownView(message: message, options: options) { [weak self] option in
-                KeystrokeReplay.type(option.id)
-                self?.stateManager.transition(to: .silent)
+            pill.show(view: WaitingAnchorView(), pillWidth: 160)
+            if let buttonFrame = pill.buttonScreenFrame {
+                let dropView = DropdownView(message: message, options: options) { [weak self] option in
+                    KeystrokeReplay.type(option.id)
+                    self?.stateManager.transition(to: .silent)
+                }
+                dropdown.show(view: dropView, below: buttonFrame)
             }
-            dropdown.show(view: dropView, anchorOrigin: origin, anchorWidth: 160)
             NSSound.beep()
 
         case .complete:
             hotkeys.disable()
             dropdown.hide()
-            let view = CompleteView()
-            pill.show(view: view, on: screen, pillWidth: 120)
+            pill.show(view: CompleteView(), pillWidth: 120)
         }
     }
 }

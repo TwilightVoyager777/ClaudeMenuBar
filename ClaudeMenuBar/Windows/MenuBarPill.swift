@@ -2,39 +2,45 @@ import AppKit
 import SwiftUI
 
 final class MenuBarPill {
-    private var panel: NSPanel?
+    let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
-    func show<Content: View>(view: Content, on screen: NSScreen, pillWidth: CGFloat) {
-        let origin = PillPositioner.pillOrigin(on: screen, pillWidth: pillWidth)
-        let size = NSSize(width: pillWidth, height: PillPositioner.pillHeight)
-        let frame = NSRect(origin: origin, size: size)
+    /// Screen frame of the button, used to anchor the dropdown panel below it
+    var buttonScreenFrame: NSRect? {
+        guard let button = statusItem.button, let window = button.window else { return nil }
+        return window.convertToScreen(button.convert(button.bounds, to: nil))
+    }
 
-        if panel == nil {
-            panel = makePanel()
-        }
-        let hostingView = NSHostingView(rootView: view.fixedSize())
-        panel!.contentView = hostingView
-        panel!.setFrame(frame, display: true)
-        panel!.orderFrontRegardless()
+    init() {
+        guard let button = statusItem.button else { return }
+        button.wantsLayer = true
+        button.layer?.backgroundColor = NSColor.clear.cgColor
+        showIcon()
+    }
+
+    /// Revert to the small idle icon
+    func showIcon() {
+        statusItem.length = NSStatusItem.squareLength
+        guard let button = statusItem.button else { return }
+        button.subviews.forEach { $0.removeFromSuperview() }
+        button.image = NSImage(systemSymbolName: "dot.radiowaves.left.and.right",
+                               accessibilityDescription: "ClaudeMenuBar")
+    }
+
+    /// Show a SwiftUI view inline in the menu bar at the given width
+    func show<Content: View>(view: Content, pillWidth: CGFloat) {
+        let barHeight = NSStatusBar.system.thickness
+        statusItem.length = pillWidth
+
+        guard let button = statusItem.button else { return }
+        button.image = nil
+        button.subviews.forEach { $0.removeFromSuperview() }
+
+        let hosting = NSHostingView(rootView: AnyView(view))
+        hosting.frame = NSRect(x: 0, y: 0, width: pillWidth, height: barHeight)
+        button.addSubview(hosting)
     }
 
     func hide() {
-        panel?.orderOut(nil)
-    }
-
-    private func makePanel() -> NSPanel {
-        let p = NSPanel(
-            contentRect: .zero,
-            styleMask: [.borderless, .nonactivatingPanel],
-            backing: .buffered,
-            defer: false
-        )
-        p.level = .init(Int(CGWindowLevelForKey(.statusWindow)) + 1)
-        p.backgroundColor = .clear
-        p.isOpaque = false
-        p.hasShadow = false
-        p.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
-        p.ignoresMouseEvents = true
-        return p
+        showIcon()
     }
 }
