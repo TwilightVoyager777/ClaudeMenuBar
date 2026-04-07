@@ -25,28 +25,39 @@ final class MenuBarPill {
         button.image = Self.makeKeycapIcon()
     }
 
-    /// Draws a keyboard keycap as a template image
+    /// Draws a keyboard keycap as a template image.
+    /// Uses fill + clear-blend cutout to create a solid rim with 3-D depth strip at the bottom.
     private static func makeKeycapIcon(size: CGFloat = 17) -> NSImage {
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { _ in
-            NSColor.black.setStroke()
-            let lw: CGFloat = 1.5
+            guard let ctx = NSGraphicsContext.current?.cgContext else { return false }
 
-            // Outer key body — slightly rounded rect
-            let outer = NSBezierPath(
-                roundedRect: NSRect(x: 1.0, y: 1.0, width: 15.0, height: 14.0),
+            // Key proportions: wide and short, like a real key
+            let kw: CGFloat = 15.5
+            let kh: CGFloat = 10.5
+            let kx: CGFloat = (size - kw) / 2   // 0.75
+            let ky: CGFloat = (size - kh) / 2   // 3.25
+
+            // 1. Fill the full key body
+            ctx.setFillColor(NSColor.black.cgColor)
+            let body = NSBezierPath(
+                roundedRect: NSRect(x: kx, y: ky, width: kw, height: kh),
                 xRadius: 3.0, yRadius: 3.0
             )
-            outer.lineWidth = lw
-            outer.stroke()
+            body.fill()
 
-            // Inner top face — inset with 3 pt bottom gap and 2 pt top gap
-            // creating a subtle 3D "viewed from above" perspective
-            let inner = NSBezierPath(
-                roundedRect: NSRect(x: 3.5, y: 4.0, width: 10.0, height: 9.0),
-                xRadius: 1.8, yRadius: 1.8
+            // 2. Carve out the recessed top face with .clear blend
+            //    Side & top inset: 2 pt (thin rim)
+            //    Bottom inset: 3.5 pt (thick = visible depth/side face)
+            let si: CGFloat = 2.0    // side + top inset
+            let di: CGFloat = 3.5   // bottom depth inset
+            ctx.setBlendMode(.clear)
+            let face = NSBezierPath(
+                roundedRect: NSRect(x: kx + si, y: ky + di,
+                                    width: kw - si * 2, height: kh - si - di),
+                xRadius: 1.5, yRadius: 1.5
             )
-            inner.lineWidth = lw * 0.75
-            inner.stroke()
+            face.fill()
+            ctx.setBlendMode(.normal)
 
             return true
         }
