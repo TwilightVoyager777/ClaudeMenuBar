@@ -1,7 +1,7 @@
-# ClaudeBar — Design Spec
+# ClaudeMenuBar — Design Spec
 
 **Date:** 2026-04-06  
-**Project:** ClaudeBar  
+**Project:** ClaudeMenuBar  
 **Summary:** A macOS menu bar app that integrates with Claude Code via hooks. A floating pill appears to the right of the notch in the menu bar, showing Claude's current state and allowing keyboard-driven responses without switching windows.
 
 ---
@@ -19,10 +19,10 @@ Claude Code (terminal)
     │
     │  Hook events (PreToolUse / PostToolUse / Stop / Notification)
     ▼
-  ~/.claude/hooks/claudebar.sh
+  ~/.claude/hooks/claudemenubar.sh
     │  POST /event  (JSON body)
     ▼
-  ClaudeBar.app  (localhost:36787)
+  ClaudeMenuBar.app  (localhost:36787)
   ┌──────────────────────────────┐
   │  HTTPServer   (port 36787)   │  ← receives hook events
   │  EventRouter                 │  ← parses event type & payload
@@ -119,14 +119,14 @@ Silent ──PreToolUse──► Working ──PostToolUse──► Working
 
 ### Hook events used
 
-| Hook | When triggered | ClaudeBar action |
+| Hook | When triggered | ClaudeMenuBar action |
 |------|---------------|-----------------|
 | `PreToolUse` | Before each tool call | → Working state, show tool name |
 | `PostToolUse` | After each tool call | → Update tool name in Working state |
 | `Stop` | Claude stops running | → WaitingInput or Complete depending on `reason` |
 | `Notification` | Claude emits notification | → Brief message in Working pill |
 
-### Hook script (`~/.claude/hooks/claudebar.sh`)
+### Hook script (`~/.claude/hooks/claudemenubar.sh`)
 
 ```bash
 #!/bin/bash
@@ -157,10 +157,10 @@ curl -s -X POST http://localhost:36787/event \
 ```json
 {
   "hooks": {
-    "PreToolUse":   [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudebar.sh" }] }],
-    "PostToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudebar.sh" }] }],
-    "Stop":         [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudebar.sh" }] }],
-    "Notification": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudebar.sh" }] }]
+    "PreToolUse":   [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudemenubar.sh" }] }],
+    "PostToolUse":  [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudemenubar.sh" }] }],
+    "Stop":         [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudemenubar.sh" }] }],
+    "Notification": [{ "matcher": "*", "hooks": [{ "type": "command", "command": "~/.claude/hooks/claudemenubar.sh" }] }]
   }
 }
 ```
@@ -179,9 +179,9 @@ Global hotkeys registered via `CGEventTap`. Active **only** in `WaitingInput` st
 | `1` / `2` / `3` | Select numbered option | `1`/`2`/`3` + Enter |
 | `Esc` | Dismiss panel (no response sent) | — |
 
-**Permission required:** Accessibility (System Settings → Privacy & Security → Accessibility). ClaudeBar prompts on first launch.
+**Permission required:** Accessibility (System Settings → Privacy & Security → Accessibility). ClaudeMenuBar prompts on first launch.
 
-**Response mechanism:** When the user presses a key, ClaudeBar uses `CGEventPost` to simulate the keystroke into the active terminal window (the one running Claude Code). This requires no bidirectional channel — ClaudeBar simply replays the keypress as if the user typed it directly in the terminal.
+**Response mechanism:** When the user presses a key, ClaudeMenuBar uses `CGEventPost` to simulate the keystroke into the active terminal window (the one running Claude Code). This requires no bidirectional channel — ClaudeMenuBar simply replays the keypress as if the user typed it directly in the terminal.
 
 ---
 
@@ -202,19 +202,19 @@ Global hotkeys registered via `CGEventTap`. Active **only** in `WaitingInput` st
 
 ### One-line install
 ```bash
-curl -fsSL https://raw.githubusercontent.com/user/ClaudeBar/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/user/ClaudeMenuBar/main/install.sh | bash
 ```
 
 ### Install script actions
 1. Download latest `.dmg` from GitHub Releases
-2. Mount and copy `ClaudeBar.app` to `/Applications`
+2. Mount and copy `ClaudeMenuBar.app` to `/Applications`
 3. Merge hook config into `~/.claude/settings.json`
-4. Create `~/.claude/hooks/claudebar.sh` and `chmod +x`
+4. Create `~/.claude/hooks/claudemenubar.sh` and `chmod +x`
 5. Launch app and prompt for Accessibility permission
 
 ### Distribution channels
 - GitHub Releases (notarized `.dmg`)
-- Homebrew Cask (`brew install --cask claudebar`)
+- Homebrew Cask (`brew install --cask claudemenubar`)
 
 ### Non-notch Mac fallback
 On Macs without a notch, the pill is positioned at the top-center of the screen at menu bar height, blending into the menu bar background.

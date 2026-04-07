@@ -1,36 +1,36 @@
-name: ClaudeBar
+name: ClaudeMenuBar
 options:
-  bundleIdPrefix: com.claudebar
+  bundleIdPrefix: com.claudemenubar
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true
   xcodeVersion: "15.0"
 
 targets:
-  ClaudeBar:
+  ClaudeMenuBar:
     type: application
     platform: macOS
     sources:
-      - ClaudeBar
+      - ClaudeMenuBar
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBar
-        INFOPLIST_FILE: ClaudeBar/Info.plist
-        CODE_SIGN_ENTITLEMENTS: ClaudeBar/ClaudeBar.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudemenubar.ClaudeMenuBar
+        INFOPLIST_FILE: ClaudeMenuBar/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ClaudeMenuBar/ClaudeMenuBar.entitlements
         SWIFT_VERSION: "5.9"
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         CODE_SIGN_STYLE: Automatic
     entitlements:
-      path: ClaudeBar/ClaudeBar.entitlements
+      path: ClaudeMenuBar/ClaudeMenuBar.entitlements
 
-  ClaudeBarTests:
+  ClaudeMenuBarTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - ClaudeBarTests
+      - ClaudeMenuBarTests
     dependencies:
-      - target: ClaudeBar
+      - target: ClaudeMenuBar
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBarTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudemenubar.ClaudeMenuBarTests
         MACOSX_DEPLOYMENT_TARGET: "13.0"

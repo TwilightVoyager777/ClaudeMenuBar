@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>ClaudeBar</string>
+    <string>ClaudeMenuBar</string>
     <key>CFBundleIdentifier</key>
-    <string>com.claudebar.ClaudeBar</string>
+    <string>com.claudemenubar.ClaudeMenuBar</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
@@ -15,7 +15,7 @@
     <key>LSUIElement</key>
     <true/>
     <key>NSAccessibilityUsageDescription</key>
-    <string>ClaudeBar needs accessibility access to send keyboard responses to Claude Code in your terminal.</string>
+    <string>ClaudeMenuBar needs accessibility access to send keyboard responses to Claude Code in your terminal.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>

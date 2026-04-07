@@ -1,4 +1,4 @@
-# ClaudeBar Implementation Plan
+# ClaudeMenuBar Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -14,9 +14,9 @@
 
 **Files:**
 - Create: `project.yml`
-- Create: `ClaudeBar/Info.plist`
-- Create: `ClaudeBar/ClaudeBar.entitlements`
-- Create: `ClaudeBar/ClaudeBarApp.swift`
+- Create: `ClaudeMenuBar/Info.plist`
+- Create: `ClaudeMenuBar/ClaudeMenuBar.entitlements`
+- Create: `ClaudeMenuBar/ClaudeMenuBarApp.swift`
 
 - [ ] **Step 1: Install xcodegen**
 
@@ -29,45 +29,45 @@ Expected: `xcodegen version 2.x.x` when running `xcodegen --version`
 - [ ] **Step 2: Create `project.yml`**
 
 ```yaml
-name: ClaudeBar
+name: ClaudeMenuBar
 options:
-  bundleIdPrefix: com.claudebar
+  bundleIdPrefix: com.claudemenubar
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true
   xcodeVersion: "15.0"
 
 targets:
-  ClaudeBar:
+  ClaudeMenuBar:
     type: application
     platform: macOS
     sources:
-      - ClaudeBar
+      - ClaudeMenuBar
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBar
-        INFOPLIST_FILE: ClaudeBar/Info.plist
-        CODE_SIGN_ENTITLEMENTS: ClaudeBar/ClaudeBar.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudemenubar.ClaudeMenuBar
+        INFOPLIST_FILE: ClaudeMenuBar/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ClaudeMenuBar/ClaudeMenuBar.entitlements
         SWIFT_VERSION: "5.9"
         MACOSX_DEPLOYMENT_TARGET: "13.0"
         CODE_SIGN_STYLE: Automatic
     entitlements:
-      path: ClaudeBar/ClaudeBar.entitlements
+      path: ClaudeMenuBar/ClaudeMenuBar.entitlements
 
-  ClaudeBarTests:
+  ClaudeMenuBarTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - ClaudeBarTests
+      - ClaudeMenuBarTests
     dependencies:
-      - target: ClaudeBar
+      - target: ClaudeMenuBar
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBarTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudemenubar.ClaudeMenuBarTests
         MACOSX_DEPLOYMENT_TARGET: "13.0"
 ```
 
-- [ ] **Step 3: Create `ClaudeBar/Info.plist`**
+- [ ] **Step 3: Create `ClaudeMenuBar/Info.plist`**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -75,9 +75,9 @@ targets:
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>ClaudeBar</string>
+    <string>ClaudeMenuBar</string>
     <key>CFBundleIdentifier</key>
-    <string>com.claudebar.ClaudeBar</string>
+    <string>com.claudemenubar.ClaudeMenuBar</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>CFBundleShortVersionString</key>
@@ -87,14 +87,14 @@ targets:
     <key>LSUIElement</key>
     <true/>
     <key>NSAccessibilityUsageDescription</key>
-    <string>ClaudeBar needs accessibility access to send keyboard responses to Claude Code in your terminal.</string>
+    <string>ClaudeMenuBar needs accessibility access to send keyboard responses to Claude Code in your terminal.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>
 </plist>
 ```
 
-- [ ] **Step 4: Create `ClaudeBar/ClaudeBar.entitlements`**
+- [ ] **Step 4: Create `ClaudeMenuBar/ClaudeMenuBar.entitlements`**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -110,18 +110,18 @@ targets:
 - [ ] **Step 5: Create source directories**
 
 ```bash
-mkdir -p ClaudeBar/Models ClaudeBar/Services ClaudeBar/State \
-          ClaudeBar/Windows ClaudeBar/Views ClaudeBar/Helpers \
-          ClaudeBarTests scripts
+mkdir -p ClaudeMenuBar/Models ClaudeMenuBar/Services ClaudeMenuBar/State \
+          ClaudeMenuBar/Windows ClaudeMenuBar/Views ClaudeMenuBar/Helpers \
+          ClaudeMenuBarTests scripts
 ```
 
-- [ ] **Step 6: Create `ClaudeBar/ClaudeBarApp.swift` (stub)**
+- [ ] **Step 6: Create `ClaudeMenuBar/ClaudeMenuBarApp.swift` (stub)**
 
 ```swift
 import SwiftUI
 
 @main
-struct ClaudeBarApp: App {
+struct ClaudeMenuBarApp: App {
     var body: some Scene {
         Settings { EmptyView() }
     }
@@ -131,16 +131,16 @@ struct ClaudeBarApp: App {
 - [ ] **Step 7: Generate Xcode project**
 
 ```bash
-cd /Users/dragonhope/Documents/Project/ClaudeBar
+cd /Users/dragonhope/Documents/Project/ClaudeMenuBar
 xcodegen generate
 ```
 
-Expected: `ClaudeBar.xcodeproj` created without errors.
+Expected: `ClaudeMenuBar.xcodeproj` created without errors.
 
 - [ ] **Step 8: Verify build**
 
 ```bash
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | tail -5
 ```
@@ -150,7 +150,7 @@ Expected: `** BUILD SUCCEEDED **`
 - [ ] **Step 9: Commit**
 
 ```bash
-git add project.yml ClaudeBar/ ClaudeBarTests/ scripts/ ClaudeBar.xcodeproj
+git add project.yml ClaudeMenuBar/ ClaudeMenuBarTests/ scripts/ ClaudeMenuBar.xcodeproj
 git commit -m "feat: project scaffolding"
 ```
 
@@ -159,16 +159,16 @@ git commit -m "feat: project scaffolding"
 ## Task 2: AppState and ClaudeEvent Models
 
 **Files:**
-- Create: `ClaudeBar/Models/AppState.swift`
-- Create: `ClaudeBar/Models/ClaudeEvent.swift`
-- Create: `ClaudeBarTests/ModelsTests.swift`
+- Create: `ClaudeMenuBar/Models/AppState.swift`
+- Create: `ClaudeMenuBar/Models/ClaudeEvent.swift`
+- Create: `ClaudeMenuBarTests/ModelsTests.swift`
 
 - [ ] **Step 1: Write failing tests**
 
 ```swift
-// ClaudeBarTests/ModelsTests.swift
+// ClaudeMenuBarTests/ModelsTests.swift
 import XCTest
-@testable import ClaudeBar
+@testable import ClaudeMenuBar
 
 final class ModelsTests: XCTestCase {
 
@@ -228,14 +228,14 @@ final class ModelsTests: XCTestCase {
 - [ ] **Step 2: Run tests — verify they fail**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(error:|FAILED|passed|failed)"
 ```
 
 Expected: compile errors (types not defined yet)
 
-- [ ] **Step 3: Create `ClaudeBar/Models/AppState.swift`**
+- [ ] **Step 3: Create `ClaudeMenuBar/Models/AppState.swift`**
 
 ```swift
 import Foundation
@@ -260,7 +260,7 @@ struct InputOption: Equatable, Identifiable {
 }
 ```
 
-- [ ] **Step 4: Create `ClaudeBar/Models/ClaudeEvent.swift`**
+- [ ] **Step 4: Create `ClaudeMenuBar/Models/ClaudeEvent.swift`**
 
 ```swift
 import Foundation
@@ -284,7 +284,7 @@ struct ToolInput: Codable {
 - [ ] **Step 5: Run tests — verify they pass**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(passed|failed|error:)"
 ```
@@ -294,7 +294,7 @@ Expected: `Test Suite ... passed`
 - [ ] **Step 6: Commit**
 
 ```bash
-git add ClaudeBar/Models/ ClaudeBarTests/ModelsTests.swift
+git add ClaudeMenuBar/Models/ ClaudeMenuBarTests/ModelsTests.swift
 git commit -m "feat: AppState and ClaudeEvent models"
 ```
 
@@ -303,15 +303,15 @@ git commit -m "feat: AppState and ClaudeEvent models"
 ## Task 3: EventRouter
 
 **Files:**
-- Create: `ClaudeBar/Services/EventRouter.swift`
-- Create: `ClaudeBarTests/EventRouterTests.swift`
+- Create: `ClaudeMenuBar/Services/EventRouter.swift`
+- Create: `ClaudeMenuBarTests/EventRouterTests.swift`
 
 - [ ] **Step 1: Write failing tests**
 
 ```swift
-// ClaudeBarTests/EventRouterTests.swift
+// ClaudeMenuBarTests/EventRouterTests.swift
 import XCTest
-@testable import ClaudeBar
+@testable import ClaudeMenuBar
 
 final class EventRouterTests: XCTestCase {
     let router = EventRouter()
@@ -400,14 +400,14 @@ final class EventRouterTests: XCTestCase {
 - [ ] **Step 2: Run tests — verify they fail**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(error:|FAILED)"
 ```
 
 Expected: compile errors
 
-- [ ] **Step 3: Create `ClaudeBar/Services/EventRouter.swift`**
+- [ ] **Step 3: Create `ClaudeMenuBar/Services/EventRouter.swift`**
 
 ```swift
 import Foundation
@@ -451,7 +451,7 @@ final class EventRouter {
 - [ ] **Step 4: Run tests — verify they pass**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(passed|failed)"
 ```
@@ -461,7 +461,7 @@ Expected: all tests pass
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ClaudeBar/Services/EventRouter.swift ClaudeBarTests/EventRouterTests.swift
+git add ClaudeMenuBar/Services/EventRouter.swift ClaudeMenuBarTests/EventRouterTests.swift
 git commit -m "feat: EventRouter — maps Claude hook events to AppState"
 ```
 
@@ -470,15 +470,15 @@ git commit -m "feat: EventRouter — maps Claude hook events to AppState"
 ## Task 4: StateManager
 
 **Files:**
-- Create: `ClaudeBar/State/StateManager.swift`
-- Create: `ClaudeBarTests/StateManagerTests.swift`
+- Create: `ClaudeMenuBar/State/StateManager.swift`
+- Create: `ClaudeMenuBarTests/StateManagerTests.swift`
 
 - [ ] **Step 1: Write failing tests**
 
 ```swift
-// ClaudeBarTests/StateManagerTests.swift
+// ClaudeMenuBarTests/StateManagerTests.swift
 import XCTest
-@testable import ClaudeBar
+@testable import ClaudeMenuBar
 
 @MainActor
 final class StateManagerTests: XCTestCase {
@@ -522,12 +522,12 @@ final class StateManagerTests: XCTestCase {
 - [ ] **Step 2: Run tests — verify they fail**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(error:|FAILED)"
 ```
 
-- [ ] **Step 3: Create `ClaudeBar/State/StateManager.swift`**
+- [ ] **Step 3: Create `ClaudeMenuBar/State/StateManager.swift`**
 
 ```swift
 import Foundation
@@ -557,7 +557,7 @@ final class StateManager: ObservableObject {
 - [ ] **Step 4: Run tests — verify they pass**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(passed|failed)"
 ```
@@ -565,7 +565,7 @@ xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ClaudeBar/State/StateManager.swift ClaudeBarTests/StateManagerTests.swift
+git add ClaudeMenuBar/State/StateManager.swift ClaudeMenuBarTests/StateManagerTests.swift
 git commit -m "feat: StateManager — owns AppState with 3s complete timer"
 ```
 
@@ -574,9 +574,9 @@ git commit -m "feat: StateManager — owns AppState with 3s complete timer"
 ## Task 5: HTTPServer
 
 **Files:**
-- Create: `ClaudeBar/Services/HTTPServer.swift`
+- Create: `ClaudeMenuBar/Services/HTTPServer.swift`
 
-- [ ] **Step 1: Create `ClaudeBar/Services/HTTPServer.swift`**
+- [ ] **Step 1: Create `ClaudeMenuBar/Services/HTTPServer.swift`**
 
 ```swift
 import Foundation
@@ -646,7 +646,7 @@ The HTTP server will be smoke-tested as part of Task 10 (end-to-end manual test)
 - [ ] **Step 3: Commit**
 
 ```bash
-git add ClaudeBar/Services/HTTPServer.swift
+git add ClaudeMenuBar/Services/HTTPServer.swift
 git commit -m "feat: HTTPServer — NWListener on port 36787"
 ```
 
@@ -655,15 +655,15 @@ git commit -m "feat: HTTPServer — NWListener on port 36787"
 ## Task 6: PillPositioner
 
 **Files:**
-- Create: `ClaudeBar/Helpers/PillPositioner.swift`
-- Create: `ClaudeBarTests/PillPositionerTests.swift`
+- Create: `ClaudeMenuBar/Helpers/PillPositioner.swift`
+- Create: `ClaudeMenuBarTests/PillPositionerTests.swift`
 
 - [ ] **Step 1: Write failing tests**
 
 ```swift
-// ClaudeBarTests/PillPositionerTests.swift
+// ClaudeMenuBarTests/PillPositionerTests.swift
 import XCTest
-@testable import ClaudeBar
+@testable import ClaudeMenuBar
 
 final class PillPositionerTests: XCTestCase {
 
@@ -688,12 +688,12 @@ final class PillPositionerTests: XCTestCase {
 - [ ] **Step 2: Run tests — verify they fail**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(error:|FAILED)"
 ```
 
-- [ ] **Step 3: Create `ClaudeBar/Helpers/PillPositioner.swift`**
+- [ ] **Step 3: Create `ClaudeMenuBar/Helpers/PillPositioner.swift`**
 
 ```swift
 import AppKit
@@ -733,7 +733,7 @@ enum PillPositioner {
 - [ ] **Step 4: Run tests — verify they pass**
 
 ```bash
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | grep -E "(passed|failed)"
 ```
@@ -741,7 +741,7 @@ xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ClaudeBar/Helpers/PillPositioner.swift ClaudeBarTests/PillPositionerTests.swift
+git add ClaudeMenuBar/Helpers/PillPositioner.swift ClaudeMenuBarTests/PillPositionerTests.swift
 git commit -m "feat: PillPositioner — calculates pill position right of notch"
 ```
 
@@ -750,12 +750,12 @@ git commit -m "feat: PillPositioner — calculates pill position right of notch"
 ## Task 7: SwiftUI Views
 
 **Files:**
-- Create: `ClaudeBar/Views/WorkingView.swift`
-- Create: `ClaudeBar/Views/CompleteView.swift`
-- Create: `ClaudeBar/Views/WaitingView.swift`
-- Create: `ClaudeBar/Views/DropdownView.swift`
+- Create: `ClaudeMenuBar/Views/WorkingView.swift`
+- Create: `ClaudeMenuBar/Views/CompleteView.swift`
+- Create: `ClaudeMenuBar/Views/WaitingView.swift`
+- Create: `ClaudeMenuBar/Views/DropdownView.swift`
 
-- [ ] **Step 1: Create `ClaudeBar/Views/WorkingView.swift`**
+- [ ] **Step 1: Create `ClaudeMenuBar/Views/WorkingView.swift`**
 
 ```swift
 import SwiftUI
@@ -861,7 +861,7 @@ extension Color {
 }
 ```
 
-- [ ] **Step 2: Create `ClaudeBar/Views/WaitingView.swift`**
+- [ ] **Step 2: Create `ClaudeMenuBar/Views/WaitingView.swift`**
 
 ```swift
 import SwiftUI
@@ -889,7 +889,7 @@ struct WaitingAnchorView: View {
 }
 ```
 
-- [ ] **Step 3: Create `ClaudeBar/Views/DropdownView.swift`**
+- [ ] **Step 3: Create `ClaudeMenuBar/Views/DropdownView.swift`**
 
 ```swift
 import SwiftUI
@@ -987,7 +987,7 @@ struct DropdownView: View {
 - [ ] **Step 4: Build to verify views compile**
 
 ```bash
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | tail -3
 ```
@@ -997,7 +997,7 @@ Expected: `** BUILD SUCCEEDED **`
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ClaudeBar/Views/
+git add ClaudeMenuBar/Views/
 git commit -m "feat: SwiftUI views — WorkingView, CompleteView, WaitingView, DropdownView"
 ```
 
@@ -1006,10 +1006,10 @@ git commit -m "feat: SwiftUI views — WorkingView, CompleteView, WaitingView, D
 ## Task 8: MenuBarPill + DropdownPanel Windows
 
 **Files:**
-- Create: `ClaudeBar/Windows/MenuBarPill.swift`
-- Create: `ClaudeBar/Windows/DropdownPanel.swift`
+- Create: `ClaudeMenuBar/Windows/MenuBarPill.swift`
+- Create: `ClaudeMenuBar/Windows/DropdownPanel.swift`
 
-- [ ] **Step 1: Create `ClaudeBar/Windows/MenuBarPill.swift`**
+- [ ] **Step 1: Create `ClaudeMenuBar/Windows/MenuBarPill.swift`**
 
 ```swift
 import AppKit
@@ -1054,7 +1054,7 @@ final class MenuBarPill {
 }
 ```
 
-- [ ] **Step 2: Create `ClaudeBar/Windows/DropdownPanel.swift`**
+- [ ] **Step 2: Create `ClaudeMenuBar/Windows/DropdownPanel.swift`**
 
 ```swift
 import AppKit
@@ -1105,7 +1105,7 @@ final class DropdownPanel {
 - [ ] **Step 3: Build to verify**
 
 ```bash
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | tail -3
 ```
@@ -1115,7 +1115,7 @@ Expected: `** BUILD SUCCEEDED **`
 - [ ] **Step 4: Commit**
 
 ```bash
-git add ClaudeBar/Windows/
+git add ClaudeMenuBar/Windows/
 git commit -m "feat: MenuBarPill and DropdownPanel — NSPanel windows"
 ```
 
@@ -1124,10 +1124,10 @@ git commit -m "feat: MenuBarPill and DropdownPanel — NSPanel windows"
 ## Task 9: GlobalHotkeys + KeystrokeReplay
 
 **Files:**
-- Create: `ClaudeBar/Services/GlobalHotkeys.swift`
-- Create: `ClaudeBar/Services/KeystrokeReplay.swift`
+- Create: `ClaudeMenuBar/Services/GlobalHotkeys.swift`
+- Create: `ClaudeMenuBar/Services/KeystrokeReplay.swift`
 
-- [ ] **Step 1: Create `ClaudeBar/Services/KeystrokeReplay.swift`**
+- [ ] **Step 1: Create `ClaudeMenuBar/Services/KeystrokeReplay.swift`**
 
 ```swift
 import CoreGraphics
@@ -1164,7 +1164,7 @@ enum KeystrokeReplay {
 }
 ```
 
-- [ ] **Step 2: Create `ClaudeBar/Services/GlobalHotkeys.swift`**
+- [ ] **Step 2: Create `ClaudeMenuBar/Services/GlobalHotkeys.swift`**
 
 ```swift
 import CoreGraphics
@@ -1227,7 +1227,7 @@ final class GlobalHotkeys {
 - [ ] **Step 3: Build to verify**
 
 ```bash
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | tail -3
 ```
@@ -1235,7 +1235,7 @@ xcodebuild -scheme ClaudeBar -configuration Debug build \
 - [ ] **Step 4: Commit**
 
 ```bash
-git add ClaudeBar/Services/GlobalHotkeys.swift ClaudeBar/Services/KeystrokeReplay.swift
+git add ClaudeMenuBar/Services/GlobalHotkeys.swift ClaudeMenuBar/Services/KeystrokeReplay.swift
 git commit -m "feat: GlobalHotkeys (CGEventTap) and KeystrokeReplay (CGEventPost)"
 ```
 
@@ -1244,10 +1244,10 @@ git commit -m "feat: GlobalHotkeys (CGEventTap) and KeystrokeReplay (CGEventPost
 ## Task 10: MenuBarController — Wire Everything Together
 
 **Files:**
-- Create: `ClaudeBar/MenuBarController.swift`
-- Modify: `ClaudeBar/ClaudeBarApp.swift`
+- Create: `ClaudeMenuBar/MenuBarController.swift`
+- Modify: `ClaudeMenuBar/ClaudeMenuBarApp.swift`
 
-- [ ] **Step 1: Create `ClaudeBar/MenuBarController.swift`**
+- [ ] **Step 1: Create `ClaudeMenuBar/MenuBarController.swift`**
 
 ```swift
 import AppKit
@@ -1275,13 +1275,13 @@ final class MenuBarController: NSObject, ObservableObject {
     private func setupStatusItem() {
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "dot.radiowaves.left.and.right",
-                                   accessibilityDescription: "ClaudeBar")
+                                   accessibilityDescription: "ClaudeMenuBar")
             button.action = #selector(statusBarButtonClicked)
             button.target = self
         }
 
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Quit ClaudeBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit ClaudeMenuBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         statusItem.menu = menu
     }
 
@@ -1361,13 +1361,13 @@ final class MenuBarController: NSObject, ObservableObject {
 }
 ```
 
-- [ ] **Step 2: Update `ClaudeBar/ClaudeBarApp.swift`**
+- [ ] **Step 2: Update `ClaudeMenuBar/ClaudeMenuBarApp.swift`**
 
 ```swift
 import SwiftUI
 
 @main
-struct ClaudeBarApp: App {
+struct ClaudeMenuBarApp: App {
     @StateObject private var controller = MenuBarController()
 
     var body: some Scene {
@@ -1379,7 +1379,7 @@ struct ClaudeBarApp: App {
 - [ ] **Step 3: Build and run manually**
 
 ```bash
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
   2>&1 | tail -3
 ```
@@ -1412,7 +1412,7 @@ Verify:
 - [ ] **Step 4: Commit**
 
 ```bash
-git add ClaudeBar/MenuBarController.swift ClaudeBar/ClaudeBarApp.swift
+git add ClaudeMenuBar/MenuBarController.swift ClaudeMenuBar/ClaudeMenuBarApp.swift
 git commit -m "feat: MenuBarController — wires all components end-to-end"
 ```
 
@@ -1421,14 +1421,14 @@ git commit -m "feat: MenuBarController — wires all components end-to-end"
 ## Task 11: Claude Code Hook Script + Installer
 
 **Files:**
-- Create: `scripts/claudebar-hook.sh`
+- Create: `scripts/claudemenubar-hook.sh`
 - Create: `scripts/install.sh`
 
-- [ ] **Step 1: Create `scripts/claudebar-hook.sh`**
+- [ ] **Step 1: Create `scripts/claudemenubar-hook.sh`**
 
 ```bash
 #!/bin/bash
-# ClaudeBar hook — forwards Claude Code events to the ClaudeBar app
+# ClaudeMenuBar hook — forwards Claude Code events to the ClaudeMenuBar app
 # Called by Claude Code with event JSON in $CLAUDE_HOOK_EVENT_JSON
 
 curl -s -X POST "http://localhost:36787/event" \
@@ -1445,20 +1445,20 @@ curl -s -X POST "http://localhost:36787/event" \
 #!/bin/bash
 set -e
 
-APP_NAME="ClaudeBar"
+APP_NAME="ClaudeMenuBar"
 INSTALL_DIR="/Applications"
 HOOK_DIR="$HOME/.claude/hooks"
 SETTINGS_FILE="$HOME/.claude/settings.json"
-HOOK_SCRIPT="$HOOK_DIR/claudebar-hook.sh"
-REPO_RAW="https://raw.githubusercontent.com/user/ClaudeBar/main"  # TODO: update with actual GitHub username before publishing
+HOOK_SCRIPT="$HOOK_DIR/claudemenubar-hook.sh"
+REPO_RAW="https://raw.githubusercontent.com/user/ClaudeMenuBar/main"  # TODO: update with actual GitHub username before publishing
 
-echo "Installing ClaudeBar..."
+echo "Installing ClaudeMenuBar..."
 
 # 1. Create hooks directory
 mkdir -p "$HOOK_DIR"
 
 # 2. Install hook script
-curl -fsSL "$REPO_RAW/scripts/claudebar-hook.sh" -o "$HOOK_SCRIPT"
+curl -fsSL "$REPO_RAW/scripts/claudemenubar-hook.sh" -o "$HOOK_SCRIPT"
 chmod +x "$HOOK_SCRIPT"
 echo "  ✓ Hook script installed at $HOOK_SCRIPT"
 
@@ -1499,18 +1499,18 @@ PYEOF
 
 echo "  ✓ Claude Code hooks configured"
 echo ""
-echo "ClaudeBar installed. Open ClaudeBar.app to start."
+echo "ClaudeMenuBar installed. Open ClaudeMenuBar.app to start."
 echo "Grant Accessibility permission when prompted."
 ```
 
 - [ ] **Step 3: Make scripts executable and verify**
 
 ```bash
-chmod +x scripts/claudebar-hook.sh scripts/install.sh
+chmod +x scripts/claudemenubar-hook.sh scripts/install.sh
 
 # Smoke test the hook script locally
 CLAUDE_HOOK_EVENT_JSON='{"event":"PreToolUse","tool":"Bash","input":{"command":"echo test"}}' \
-  bash scripts/claudebar-hook.sh
+  bash scripts/claudemenubar-hook.sh
 # Expected: no output (fires curl in background), no error
 ```
 
@@ -1537,7 +1537,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-ClaudeBar — a macOS menu bar app that integrates with Claude Code via hooks. A floating pill appears right of the notch in the menu bar, showing Claude's current state and enabling keyboard responses without switching windows.
+ClaudeMenuBar — a macOS menu bar app that integrates with Claude Code via hooks. A floating pill appears right of the notch in the menu bar, showing Claude's current state and enabling keyboard responses without switching windows.
 
 ## Build
 
@@ -1548,17 +1548,17 @@ Requires Xcode 15+ and xcodegen (`brew install xcodegen`).
 xcodegen generate
 
 # Build
-xcodebuild -scheme ClaudeBar -configuration Debug build \
+xcodebuild -scheme ClaudeMenuBar -configuration Debug build \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
 # Run tests
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
 # Run a single test
-xcodebuild test -scheme ClaudeBar -destination 'platform=macOS' \
+xcodebuild test -scheme ClaudeMenuBar -destination 'platform=macOS' \
   CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO \
-  -only-testing ClaudeBarTests/EventRouterTests
+  -only-testing ClaudeMenuBarTests/EventRouterTests
 ```
 
 ## Architecture

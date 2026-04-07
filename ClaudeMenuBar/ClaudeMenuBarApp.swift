@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ClaudeBarApp: App {
+struct ClaudeMenuBarApp: App {
     var body: some Scene {
         Settings { EmptyView() }
     }
