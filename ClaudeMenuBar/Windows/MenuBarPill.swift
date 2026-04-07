@@ -22,36 +22,32 @@ final class MenuBarPill {
         statusItem.length = NSStatusItem.squareLength
         guard let button = statusItem.button else { return }
         button.subviews.forEach { $0.removeFromSuperview() }
-        button.image = Self.makeSparkleIcon()
+        button.image = Self.makeKeycapIcon()
     }
 
-    /// Draws a ✦ four-pointed sparkle icon as a template image
-    private static func makeSparkleIcon(size: CGFloat = 17) -> NSImage {
+    /// Draws a keyboard keycap as a template image
+    private static func makeKeycapIcon(size: CGFloat = 17) -> NSImage {
         let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { _ in
-            let cx = size / 2
-            let cy = size / 2
-            let tipR  = size * 0.46   // how far the pointed tips extend
-            let waist = size * 0.085  // half-width at center crossing
+            NSColor.black.setStroke()
+            let lw: CGFloat = 1.5
 
-            // Vertical elongated diamond
-            let v = NSBezierPath()
-            v.move(to:   NSPoint(x: cx,          y: cy + tipR))
-            v.line(to:   NSPoint(x: cx + waist,  y: cy))
-            v.line(to:   NSPoint(x: cx,          y: cy - tipR))
-            v.line(to:   NSPoint(x: cx - waist,  y: cy))
-            v.close()
+            // Outer key body — slightly rounded rect
+            let outer = NSBezierPath(
+                roundedRect: NSRect(x: 1.0, y: 1.0, width: 15.0, height: 14.0),
+                xRadius: 3.0, yRadius: 3.0
+            )
+            outer.lineWidth = lw
+            outer.stroke()
 
-            // Horizontal elongated diamond
-            let h = NSBezierPath()
-            h.move(to:   NSPoint(x: cx + tipR,   y: cy))
-            h.line(to:   NSPoint(x: cx,          y: cy + waist))
-            h.line(to:   NSPoint(x: cx - tipR,   y: cy))
-            h.line(to:   NSPoint(x: cx,          y: cy - waist))
-            h.close()
+            // Inner top face — inset with 3 pt bottom gap and 2 pt top gap
+            // creating a subtle 3D "viewed from above" perspective
+            let inner = NSBezierPath(
+                roundedRect: NSRect(x: 3.5, y: 4.0, width: 10.0, height: 9.0),
+                xRadius: 1.8, yRadius: 1.8
+            )
+            inner.lineWidth = lw * 0.75
+            inner.stroke()
 
-            NSColor.black.setFill()
-            v.fill()
-            h.fill()
             return true
         }
         image.isTemplate = true
