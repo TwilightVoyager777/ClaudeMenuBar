@@ -22,8 +22,40 @@ final class MenuBarPill {
         statusItem.length = NSStatusItem.squareLength
         guard let button = statusItem.button else { return }
         button.subviews.forEach { $0.removeFromSuperview() }
-        button.image = NSImage(systemSymbolName: "dot.radiowaves.left.and.right",
-                               accessibilityDescription: "ClaudeMenuBar")
+        button.image = Self.makeSparkleIcon()
+    }
+
+    /// Draws a ✦ four-pointed sparkle icon as a template image
+    private static func makeSparkleIcon(size: CGFloat = 17) -> NSImage {
+        let image = NSImage(size: NSSize(width: size, height: size), flipped: false) { _ in
+            let cx = size / 2
+            let cy = size / 2
+            let tipR  = size * 0.46   // how far the pointed tips extend
+            let waist = size * 0.085  // half-width at center crossing
+
+            // Vertical elongated diamond
+            let v = NSBezierPath()
+            v.move(to:   NSPoint(x: cx,          y: cy + tipR))
+            v.line(to:   NSPoint(x: cx + waist,  y: cy))
+            v.line(to:   NSPoint(x: cx,          y: cy - tipR))
+            v.line(to:   NSPoint(x: cx - waist,  y: cy))
+            v.close()
+
+            // Horizontal elongated diamond
+            let h = NSBezierPath()
+            h.move(to:   NSPoint(x: cx + tipR,   y: cy))
+            h.line(to:   NSPoint(x: cx,          y: cy + waist))
+            h.line(to:   NSPoint(x: cx - tipR,   y: cy))
+            h.line(to:   NSPoint(x: cx,          y: cy - waist))
+            h.close()
+
+            NSColor.black.setFill()
+            v.fill()
+            h.fill()
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 
     /// Show a SwiftUI view inline in the menu bar at the given width
