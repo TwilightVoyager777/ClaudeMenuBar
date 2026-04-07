@@ -1,0 +1,36 @@
+name: ClaudeBar
+options:
+  bundleIdPrefix: com.claudebar
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+  xcodeVersion: "15.0"
+
+targets:
+  ClaudeBar:
+    type: application
+    platform: macOS
+    sources:
+      - ClaudeBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBar
+        INFOPLIST_FILE: ClaudeBar/Info.plist
+        CODE_SIGN_ENTITLEMENTS: ClaudeBar/ClaudeBar.entitlements
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        CODE_SIGN_STYLE: Automatic
+    entitlements:
+      path: ClaudeBar/ClaudeBar.entitlements
+
+  ClaudeBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - ClaudeBarTests
+    dependencies:
+      - target: ClaudeBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.claudebar.ClaudeBarTests
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
