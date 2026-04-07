@@ -23,7 +23,7 @@ struct CompleteView: View {
         HStack(spacing: 4) {
             Image(systemName: "checkmark")
                 .font(.system(size: 10, weight: .semibold))
-            Text("完成")
+            Text("Done")
                 .font(.system(size: 12, weight: .medium))
         }
         .foregroundStyle(.primary)

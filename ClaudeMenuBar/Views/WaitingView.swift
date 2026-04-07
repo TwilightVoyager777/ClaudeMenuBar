@@ -6,7 +6,7 @@ struct WaitingAnchorView: View {
         HStack(spacing: 5) {
             Image(systemName: "ellipsis.bubble")
                 .font(.system(size: 11, weight: .medium))
-            Text("需要确认")
+            Text("Needs input")
                 .font(.system(size: 12, weight: .medium))
         }
         .foregroundStyle(.primary)

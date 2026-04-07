@@ -36,7 +36,7 @@ struct DropdownView: View {
                 }
             }
 
-            Text("按键盘 \(keyHint) 直接响应")
+            Text("Press \(keyHint) to respond")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)

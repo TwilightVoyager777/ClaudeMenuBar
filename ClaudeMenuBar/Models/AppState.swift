@@ -13,8 +13,8 @@ struct InputOption: Equatable, Identifiable {
     let sublabel: String
 
     static let defaults: [InputOption] = [
-        InputOption(id: "y", label: "Y", sublabel: "允许一次"),
-        InputOption(id: "a", label: "A", sublabel: "全部允许"),
-        InputOption(id: "n", label: "N", sublabel: "拒绝")
+        InputOption(id: "y", label: "Y", sublabel: "Allow once"),
+        InputOption(id: "a", label: "A", sublabel: "Allow all"),
+        InputOption(id: "n", label: "N", sublabel: "Deny")
     ]
 }
