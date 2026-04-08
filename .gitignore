@@ -1,1 +1,6 @@
 .superpowers/
+.deriveddata/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.DS_Store
