@@ -21,28 +21,35 @@ if [ ! -f "$SETTINGS_FILE" ]; then
   echo '{}' > "$SETTINGS_FILE"
 fi
 
-HOOK_ENTRY=$(cat <<EOF
-{
-  "type": "command",
-  "command": "$HOOK_SCRIPT"
-}
-EOF
-)
-
-python3 - "$SETTINGS_FILE" "$HOOK_ENTRY" <<'PYEOF'
+python3 - "$SETTINGS_FILE" "$HOOK_SCRIPT" <<'PYEOF'
 import json, sys
 
 settings_path = sys.argv[1]
-hook_json = json.loads(sys.argv[2])
+hook_cmd      = sys.argv[2]
 
 with open(settings_path) as f:
     settings = json.load(f)
 
 hooks = settings.setdefault("hooks", {})
-for event in ["PreToolUse", "PostToolUse", "Stop", "Notification"]:
+
+# Claude Code expects matcher-group objects:
+#   { "matcher": "<regex>", "hooks": [ { "type": "command", "command": "..." } ] }
+matcher_group = {
+    "matcher": "",
+    "hooks": [{"type": "command", "command": hook_cmd}]
+}
+
+# Subscribe to all relevant events including PermissionRequest
+for event in ["PreToolUse", "PostToolUse", "Stop", "Notification", "PermissionRequest"]:
     event_hooks = hooks.setdefault(event, [])
-    if not any(h.get("command") == hook_json["command"] for h in event_hooks):
-        event_hooks.append(hook_json)
+    # Avoid duplicates — check every existing matcher group's inner hooks list
+    already = any(
+        any(h.get("command") == hook_cmd for h in g.get("hooks", []))
+        for g in event_hooks
+        if isinstance(g, dict)
+    )
+    if not already:
+        event_hooks.append(matcher_group)
 
 with open(settings_path, "w") as f:
     json.dump(settings, f, indent=2)

@@ -4,7 +4,6 @@ struct ClaudeEvent: Codable {
     let event: String
     let tool: String?
     let input: ToolInput?
-    let reason: String?
     let message: String?
     let options: [String]?
 
@@ -12,7 +11,6 @@ struct ClaudeEvent: Codable {
         case event = "hook_event_name"
         case tool = "tool_name"
         case input = "tool_input"
-        case reason = "stop_reason"
         case message
         case options
     }
@@ -20,6 +18,14 @@ struct ClaudeEvent: Codable {
 
 struct ToolInput: Codable {
     let command: String?
-    let path: String?
+    let filePath: String?   // Write / Edit / Read use file_path
+    let path: String?       // Glob / Grep use path
     let description: String?
+
+    enum CodingKeys: String, CodingKey {
+        case command
+        case filePath = "file_path"
+        case path
+        case description
+    }
 }

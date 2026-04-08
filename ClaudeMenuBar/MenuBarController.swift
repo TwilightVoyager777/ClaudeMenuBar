@@ -128,9 +128,12 @@ final class MenuBarController: NSObject, ObservableObject {
                 KeystrokeReplay.type(option.id)
                 self?.stateManager.transition(to: .silent)
             }
-            // Defer one run-loop so the status item layout updates before we read its frame
+            // Defer one run-loop so the status item layout updates before we read its frame.
+            // Re-check state to avoid showing a stale dropdown if the state already changed.
             DispatchQueue.main.async { [weak self] in
-                guard let self, let frame = self.pill.buttonScreenFrame else { return }
+                guard let self,
+                      case .waitingInput = self.stateManager.state,
+                      let frame = self.pill.buttonScreenFrame else { return }
                 self.dropdown.show(view: dropView, below: frame)
             }
             NSSound.beep()

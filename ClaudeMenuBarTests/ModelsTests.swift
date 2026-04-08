@@ -16,36 +16,51 @@ final class ModelsTests: XCTestCase {
         XCTAssertEqual(AppState.complete, AppState.complete)
     }
 
-    // JSON uses the real Claude Code field names (hook_event_name / tool_name /
-    // tool_input / stop_reason) as mapped by CodingKeys.
-    func test_claudeEvent_decodes_preToolUse() throws {
+    // MARK: - Real Claude Code payloads (hook_event_name on stdin)
+
+    func test_decodes_preToolUse_with_command() throws {
         let json = """
-        {"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"npm run build"}}
+        {"hook_event_name":"PreToolUse","tool_name":"Bash",
+         "tool_input":{"command":"npm run build"}}
         """.data(using: .utf8)!
-        let event = try JSONDecoder().decode(ClaudeEvent.self, from: json)
-        XCTAssertEqual(event.event, "PreToolUse")
-        XCTAssertEqual(event.tool, "Bash")
-        XCTAssertEqual(event.input?.command, "npm run build")
+        let e = try JSONDecoder().decode(ClaudeEvent.self, from: json)
+        XCTAssertEqual(e.event, "PreToolUse")
+        XCTAssertEqual(e.tool, "Bash")
+        XCTAssertEqual(e.input?.command, "npm run build")
     }
 
-    func test_claudeEvent_decodes_stop_input_required() throws {
+    func test_decodes_preToolUse_with_file_path() throws {
+        // Write / Edit / Read use file_path, not path
         let json = """
-        {"hook_event_name":"Stop","stop_reason":"input_required","message":"Overwrite file?","options":["y","a","n"]}
+        {"hook_event_name":"PreToolUse","tool_name":"Write",
+         "tool_input":{"file_path":"/src/main.swift","content":"..."}}
         """.data(using: .utf8)!
-        let event = try JSONDecoder().decode(ClaudeEvent.self, from: json)
-        XCTAssertEqual(event.reason, "input_required")
-        XCTAssertEqual(event.message, "Overwrite file?")
-        XCTAssertEqual(event.options, ["y", "a", "n"])
+        let e = try JSONDecoder().decode(ClaudeEvent.self, from: json)
+        XCTAssertEqual(e.tool, "Write")
+        XCTAssertEqual(e.input?.filePath, "/src/main.swift")
+        XCTAssertNil(e.input?.command)
     }
 
-    func test_claudeEvent_decodes_stop_task_complete() throws {
+    func test_decodes_stop_has_no_stop_reason() throws {
+        // Real Claude Code Stop payload carries no stop_reason field
         let json = """
-        {"hook_event_name":"Stop","stop_reason":"task_complete"}
+        {"hook_event_name":"Stop","session_id":"abc","cwd":"/tmp","permission_mode":"default"}
         """.data(using: .utf8)!
-        let event = try JSONDecoder().decode(ClaudeEvent.self, from: json)
-        XCTAssertEqual(event.event, "Stop")
-        XCTAssertEqual(event.reason, "task_complete")
-        XCTAssertNil(event.message)
+        let e = try JSONDecoder().decode(ClaudeEvent.self, from: json)
+        XCTAssertEqual(e.event, "Stop")
+        XCTAssertNil(e.message)
+        XCTAssertNil(e.options)
+    }
+
+    func test_decodes_permissionRequest() throws {
+        let json = """
+        {"hook_event_name":"PermissionRequest","tool_name":"Bash",
+         "tool_input":{"command":"rm -rf node_modules"}}
+        """.data(using: .utf8)!
+        let e = try JSONDecoder().decode(ClaudeEvent.self, from: json)
+        XCTAssertEqual(e.event, "PermissionRequest")
+        XCTAssertEqual(e.tool, "Bash")
+        XCTAssertEqual(e.input?.command, "rm -rf node_modules")
     }
 
     func test_inputOption_defaults() {

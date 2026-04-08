@@ -4,92 +4,102 @@ import XCTest
 final class EventRouterTests: XCTestCase {
     let router = EventRouter()
 
-    func test_preToolUse_returns_working_state() {
-        let event = ClaudeEvent(
-            event: "PreToolUse", tool: "Bash",
-            input: ToolInput(command: "npm run build", path: nil, description: nil),
-            reason: nil, message: nil, options: nil
-        )
-        XCTAssertEqual(router.route(event), .working(tool: "Bash", detail: "npm run build"))
+    // MARK: - PreToolUse
+
+    func test_preToolUse_bash_uses_command() {
+        let e = ClaudeEvent(event: "PreToolUse", tool: "Bash",
+                            input: ToolInput(command: "npm run build", filePath: nil, path: nil, description: nil),
+                            message: nil, options: nil)
+        XCTAssertEqual(router.route(e), .working(tool: "Bash", detail: "npm run build"))
     }
 
-    func test_preToolUse_edit_uses_path_as_detail() {
-        let event = ClaudeEvent(
-            event: "PreToolUse", tool: "Edit",
-            input: ToolInput(command: nil, path: "src/main.swift", description: nil),
-            reason: nil, message: nil, options: nil
-        )
-        XCTAssertEqual(router.route(event), .working(tool: "Edit", detail: "src/main.swift"))
+    func test_preToolUse_write_uses_filePath() {
+        // Write / Edit / Read use file_path in real payloads
+        let e = ClaudeEvent(event: "PreToolUse", tool: "Write",
+                            input: ToolInput(command: nil, filePath: "/src/main.swift", path: nil, description: nil),
+                            message: nil, options: nil)
+        XCTAssertEqual(router.route(e), .working(tool: "Write", detail: "/src/main.swift"))
     }
 
-    func test_postToolUse_returns_nil_preserving_current_state() {
-        // PostToolUse means the tool finished. We return nil so the UI keeps
-        // showing the last PreToolUse state until the next event arrives,
-        // rather than incorrectly staying "working" forever on the finished tool.
-        let event = ClaudeEvent(
-            event: "PostToolUse", tool: "Read",
-            input: ToolInput(command: nil, path: "README.md", description: nil),
-            reason: nil, message: nil, options: nil
-        )
-        XCTAssertNil(router.route(event))
+    func test_preToolUse_glob_uses_path() {
+        let e = ClaudeEvent(event: "PreToolUse", tool: "Glob",
+                            input: ToolInput(command: nil, filePath: nil, path: "src/**/*.swift", description: nil),
+                            message: nil, options: nil)
+        XCTAssertEqual(router.route(e), .working(tool: "Glob", detail: "src/**/*.swift"))
     }
 
-    func test_stop_input_required_returns_waitingInput_with_defaults() {
-        let event = ClaudeEvent(
-            event: "Stop", tool: nil, input: nil,
-            reason: "input_required", message: "Overwrite file?", options: nil
-        )
-        XCTAssertEqual(router.route(event), .waitingInput(message: "Overwrite file?", options: InputOption.defaults))
+    // MARK: - PostToolUse
+
+    func test_postToolUse_returns_nil() {
+        // PostToolUse = tool finished; preserve existing working state until Stop/next PreToolUse
+        let e = ClaudeEvent(event: "PostToolUse", tool: "Read",
+                            input: ToolInput(command: nil, filePath: "README.md", path: nil, description: nil),
+                            message: nil, options: nil)
+        XCTAssertNil(router.route(e))
     }
 
-    func test_stop_input_required_with_numbered_options() {
-        let event = ClaudeEvent(
-            event: "Stop", tool: nil, input: nil,
-            reason: "input_required", message: "Choose approach",
-            options: ["Upgrade to latest", "Keep current", "Specify version"]
-        )
-        guard case .waitingInput(let message, let options) = router.route(event) else {
-            XCTFail("Expected waitingInput"); return
+    // MARK: - Stop
+
+    func test_stop_returns_complete_regardless_of_missing_reason() {
+        // Real Claude Code Stop has no stop_reason field — always means turn complete
+        let e = ClaudeEvent(event: "Stop", tool: nil, input: nil,
+                            message: nil, options: nil)
+        XCTAssertEqual(router.route(e), .complete)
+    }
+
+    // MARK: - StopFailure
+
+    func test_stopFailure_returns_silent() {
+        let e = ClaudeEvent(event: "StopFailure", tool: nil, input: nil,
+                            message: nil, options: nil)
+        XCTAssertEqual(router.route(e), .silent)
+    }
+
+    // MARK: - PermissionRequest
+
+    func test_permissionRequest_with_command_returns_waitingInput() {
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
+                            input: ToolInput(command: "rm -rf node_modules", filePath: nil, path: nil, description: nil),
+                            message: nil, options: nil)
+        guard case .waitingInput(let message, let options) = router.route(e) else {
+            XCTFail("Expected .waitingInput"); return
         }
-        XCTAssertEqual(message, "Choose approach")
-        XCTAssertEqual(options.count, 3)
-        XCTAssertEqual(options[0].id, "1")
-        XCTAssertEqual(options[0].sublabel, "Upgrade to latest")
-        XCTAssertEqual(options[2].id, "3")
+        XCTAssertTrue(message.contains("Bash"))
+        XCTAssertTrue(message.contains("rm -rf node_modules"))
+        XCTAssertEqual(options, InputOption.defaults)
     }
 
-    func test_stop_task_complete_returns_complete() {
-        let event = ClaudeEvent(
-            event: "Stop", tool: nil, input: nil,
-            reason: "task_complete", message: nil, options: nil
-        )
-        XCTAssertEqual(router.route(event), .complete)
-    }
-
-    func test_stop_unknown_reason_returns_silent_not_complete() {
-        // An error/cancelled/unknown stop must NOT show "Done" — it clears the UI.
-        for reason in ["error", "cancelled", "some_future_reason"] {
-            let event = ClaudeEvent(
-                event: "Stop", tool: nil, input: nil,
-                reason: reason, message: nil, options: nil
-            )
-            XCTAssertEqual(router.route(event), .silent, "Expected .silent for reason: \(reason)")
+    func test_permissionRequest_with_filePath_returns_waitingInput() {
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Write",
+                            input: ToolInput(command: nil, filePath: "/etc/hosts", path: nil, description: nil),
+                            message: nil, options: nil)
+        guard case .waitingInput(let message, _) = router.route(e) else {
+            XCTFail("Expected .waitingInput"); return
         }
+        XCTAssertTrue(message.contains("Write"))
+        XCTAssertTrue(message.contains("/etc/hosts"))
     }
+
+    func test_permissionRequest_no_detail_shows_tool_only() {
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
+                            input: nil, message: nil, options: nil)
+        guard case .waitingInput(let message, _) = router.route(e) else {
+            XCTFail("Expected .waitingInput"); return
+        }
+        XCTAssertEqual(message, "Allow Bash?")
+    }
+
+    // MARK: - Notification
 
     func test_notification_returns_working() {
-        let event = ClaudeEvent(
-            event: "Notification", tool: nil, input: nil,
-            reason: nil, message: "Build finished", options: nil
-        )
-        XCTAssertEqual(router.route(event), .working(tool: "Notice", detail: "Build finished"))
+        let e = ClaudeEvent(event: "Notification", tool: nil, input: nil,
+                            message: "Build finished", options: nil)
+        XCTAssertEqual(router.route(e), .working(tool: "Notice", detail: "Build finished"))
     }
 
     func test_unknown_event_returns_nil() {
-        let event = ClaudeEvent(
-            event: "UnknownEvent", tool: nil, input: nil,
-            reason: nil, message: nil, options: nil
-        )
-        XCTAssertNil(router.route(event))
+        let e = ClaudeEvent(event: "UnknownEvent", tool: nil, input: nil,
+                            message: nil, options: nil)
+        XCTAssertNil(router.route(e))
     }
 }

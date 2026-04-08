@@ -3,45 +3,47 @@ import Foundation
 final class EventRouter {
     func route(_ event: ClaudeEvent) -> AppState? {
         switch event.event {
+
         case "PreToolUse":
             let tool = event.tool ?? "Running"
             let detail = event.input?.command
+                ?? event.input?.filePath
                 ?? event.input?.path
                 ?? event.input?.description
                 ?? ""
             return .working(tool: tool, detail: detail)
 
         case "PostToolUse":
-            // Tool has finished; keep the current working state visible until
-            // the next PreToolUse or Stop arrives. Returning nil leaves the
-            // existing state unchanged.
+            // Tool finished; leave the current working state visible until
+            // the next PreToolUse or Stop arrives.
             return nil
 
         case "Stop":
-            switch event.reason {
-            case "input_required":
-                let message = event.message ?? "Claude needs your input"
-                return .waitingInput(message: message, options: makeOptions(from: event.options))
-            case "task_complete":
-                return .complete
-            default:
-                // error, cancelled, unknown future reasons — clear UI without
-                // showing a false "Done" banner
-                return .silent
-            }
+            // Claude Code Stop carries no stop_reason — it simply fires when
+            // the turn ends normally.
+            return .complete
+
+        case "StopFailure":
+            // Turn ended due to API error; clear the UI without a Done banner.
+            return .silent
+
+        case "PermissionRequest":
+            // Claude is asking for permission to run a tool.
+            let tool = event.tool ?? "Tool"
+            let detail = event.input?.command
+                ?? event.input?.filePath
+                ?? event.input?.path
+                ?? ""
+            let message = detail.isEmpty
+                ? "Allow \(tool)?"
+                : "Allow \(tool): \(detail)"
+            return .waitingInput(message: message, options: InputOption.defaults)
 
         case "Notification":
             return .working(tool: "Notice", detail: event.message ?? "")
 
         default:
             return nil
-        }
-    }
-
-    private func makeOptions(from raw: [String]?) -> [InputOption] {
-        guard let raw, !raw.isEmpty else { return InputOption.defaults }
-        return raw.enumerated().map { index, text in
-            InputOption(id: String(index + 1), label: String(index + 1), sublabel: text)
         }
     }
 }
