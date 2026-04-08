@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Combine
+import ServiceManagement
 
 @MainActor
 final class MenuBarController: NSObject, ObservableObject {
@@ -20,43 +21,67 @@ final class MenuBarController: NSObject, ObservableObject {
         observeState()
     }
 
+    // MARK: - Menu
+
     private func setupMenu() {
+        let loginItem = NSMenuItem(title: "Launch at Login",
+                                   action: #selector(toggleLaunchAtLogin),
+                                   keyEquivalent: "")
+        loginItem.target = self
+        loginItem.state = (SMAppService.mainApp.status == .enabled) ? .on : .off
+
         let menu = NSMenu()
-        menu.addItem(withTitle: "Test: Working",   action: #selector(testWorking),      keyEquivalent: "1").target = self
-        menu.addItem(withTitle: "Test: WaitInput", action: #selector(testWaitingInput), keyEquivalent: "2").target = self
-        menu.addItem(withTitle: "Test: Complete",  action: #selector(testComplete),     keyEquivalent: "3").target = self
-        menu.addItem(withTitle: "Test: Silent",    action: #selector(testSilent),       keyEquivalent: "0").target = self
+        menu.addItem(loginItem)
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit ClaudeMenuBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit ClaudeMenuBar",
+                                action: #selector(NSApplication.terminate(_:)),
+                                keyEquivalent: "q"))
         pill.statusItem.menu = menu
     }
 
-    @objc private func testWorking()      { stateManager.transition(to: .working(tool: "Bash", detail: "ls -la")) }
-    @objc private func testWaitingInput() { stateManager.transition(to: .waitingInput(message: "Allow this action?", options: InputOption.defaults)) }
-    @objc private func testComplete()     { stateManager.transition(to: .complete) }
-    @objc private func testSilent()       { stateManager.transition(to: .silent) }
+    @objc private func toggleLaunchAtLogin(_ sender: NSMenuItem) {
+        do {
+            if sender.state == .on {
+                try SMAppService.mainApp.unregister()
+                sender.state = .off
+            } else {
+                try SMAppService.mainApp.register()
+                sender.state = .on
+            }
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Could not change login item"
+            alert.informativeText = error.localizedDescription
+            alert.alertStyle = .warning
+            alert.runModal()
+        }
+    }
+
+    // MARK: - HTTP Server
 
     private func setupHTTPServer() {
         httpServer.onEventData = { [weak self] data in
             guard let self else { return }
-            let raw = String(data: data, encoding: .utf8) ?? "<invalid utf8>"
-            NSLog("[CMB] received data: %@", raw)
-            guard let event = try? JSONDecoder().decode(ClaudeEvent.self, from: data) else {
-                NSLog("[CMB] JSON decode failed")
-                return
-            }
-            NSLog("[CMB] decoded event: %@", event.event)
+            guard let event = try? JSONDecoder().decode(ClaudeEvent.self, from: data) else { return }
             Task { @MainActor in
                 if let newState = self.eventRouter.route(event) {
-                    NSLog("[CMB] routing to state: %@", String(describing: newState))
                     self.stateManager.transition(to: newState)
-                } else {
-                    NSLog("[CMB] eventRouter returned nil for event: %@", event.event)
                 }
             }
         }
-        try? httpServer.start()
+        do {
+            try httpServer.start()
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "ClaudeMenuBar — Port Unavailable"
+            alert.informativeText = "Port 36787 is already in use. Another instance may be running.\n\nClaude Code events won't be received."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+        }
     }
+
+    // MARK: - Hotkeys
 
     private func setupHotkeys() {
         hotkeys.onKey = { [weak self] key in
@@ -73,6 +98,8 @@ final class MenuBarController: NSObject, ObservableObject {
         }
     }
 
+    // MARK: - State observation
+
     private func observeState() {
         cancellable = stateManager.$state.sink { [weak self] state in
             Task { @MainActor in
@@ -82,8 +109,6 @@ final class MenuBarController: NSObject, ObservableObject {
     }
 
     private func render(state: AppState) {
-        NSLog("[CMB] render called with state: %@", String(describing: state))
-
         switch state {
         case .silent:
             hotkeys.disable()
@@ -99,12 +124,14 @@ final class MenuBarController: NSObject, ObservableObject {
         case .waitingInput(let message, let options):
             hotkeys.enable()
             pill.show(view: WaitingAnchorView(), pillWidth: 160)
-            if let buttonFrame = pill.buttonScreenFrame {
-                let dropView = DropdownView(message: message, options: options) { [weak self] option in
-                    KeystrokeReplay.type(option.id)
-                    self?.stateManager.transition(to: .silent)
-                }
-                dropdown.show(view: dropView, below: buttonFrame)
+            let dropView = DropdownView(message: message, options: options) { [weak self] option in
+                KeystrokeReplay.type(option.id)
+                self?.stateManager.transition(to: .silent)
+            }
+            // Defer one run-loop so the status item layout updates before we read its frame
+            DispatchQueue.main.async { [weak self] in
+                guard let self, let frame = self.pill.buttonScreenFrame else { return }
+                self.dropdown.show(view: dropView, below: frame)
             }
             NSSound.beep()
 
