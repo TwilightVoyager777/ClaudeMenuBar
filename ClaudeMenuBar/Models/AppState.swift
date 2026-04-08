@@ -17,4 +17,9 @@ struct InputOption: Equatable, Identifiable {
         InputOption(id: "a", label: "A", sublabel: "Allow all"),
         InputOption(id: "n", label: "N", sublabel: "Deny")
     ]
+
+    static let yesNo: [InputOption] = [
+        InputOption(id: "y", label: "Y", sublabel: "Yes"),
+        InputOption(id: "n", label: "N", sublabel: "No")
+    ]
 }

@@ -6,6 +6,19 @@ struct ClaudeEvent: Codable {
     let input: ToolInput?
     let message: String?
     let options: [String]?
+    let permissionSuggestions: [[String: String]]?  // swiftlint:disable:this discouraged_optional_collection
+
+    /// Memberwise-init with defaults so tests can omit fields they don't care about.
+    init(event: String, tool: String? = nil, input: ToolInput? = nil,
+         message: String? = nil, options: [String]? = nil,
+         permissionSuggestions: [[String: String]]? = nil) {
+        self.event = event
+        self.tool = tool
+        self.input = input
+        self.message = message
+        self.options = options
+        self.permissionSuggestions = permissionSuggestions
+    }
 
     enum CodingKeys: String, CodingKey {
         case event = "hook_event_name"
@@ -13,6 +26,7 @@ struct ClaudeEvent: Codable {
         case input = "tool_input"
         case message
         case options
+        case permissionSuggestions = "permission_suggestions"
     }
 }
 

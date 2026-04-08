@@ -1,109 +1,97 @@
 # ClaudeMenuBar
 
-A lightweight macOS menu bar app that shows real-time status when Claude Code is working, needs your input, or finishes a task.
+A lightweight macOS menu bar app that shows real-time Claude Code status and lets you respond to permission requests without switching windows.
 
 ## What it does
 
 | State | Menu bar shows |
 |-------|---------------|
-| Idle | `>_` icon |
-| Claude is running a tool | Tool name + animated ellipsis |
-| Claude needs Y/A/N input | "Needs input" + dropdown with buttons |
+| Idle | `>_` icon only |
+| Claude is running a tool | Tool name + animated dots |
+| Claude needs permission | "Needs input" + dropdown |
 | Task complete | "Done" + checkmark (auto-hides after 3 s) |
 
-When Claude Code asks for confirmation, a dropdown panel appears below the menu bar showing the message and three buttons — **Y** (Allow once), **A** (Allow all), **N** (Deny). You can click a button or press the matching key on your keyboard.
+When Claude Code asks for permission, a dropdown appears below the menu bar with action buttons. You can respond by:
+
+- **Clicking a button** in the dropdown
+- **Pressing Y / A / N** on your keyboard while the dropdown is active
+- **Pressing Esc** to dismiss without responding (Claude keeps waiting)
+
+The app detects whether a request has 2 options (Yes / No) or 3 options (Yes / Always / No) and shows buttons accordingly.
 
 ## Requirements
 
 - macOS 13 (Ventura) or later
-- [Claude Code](https://claude.ai/code) CLI
-- Xcode 15+ (to build from source)
-- [xcodegen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
+- [Claude Code](https://claude.ai/code) CLI installed
+- Xcode 15+ to build from source
 
-## Installation
+## Setup
 
-### Build from source
+### 1. Build and run
 
-```bash
-git clone https://github.com/yourname/ClaudeMenuBar
-cd ClaudeMenuBar
-xcodegen generate
-open ClaudeMenuBar.xcodeproj
-```
+Open `ClaudeMenuBar.xcodeproj` in Xcode and press **Cmd+R**.
 
-Press **Cmd+R** in Xcode to build and run.
+### 2. Install hooks
 
-### Hook setup
-
-Run the install script to wire ClaudeMenuBar into Claude Code's hook system:
+Run once to wire ClaudeMenuBar into Claude Code:
 
 ```bash
 bash scripts/install.sh
 ```
 
-This adds entries for `PreToolUse`, `PostToolUse`, `Stop`, and `Notification` hooks to `~/.claude/settings.json`. The hook script POSTs each event to `http://localhost:36787/event` in the background so it never slows down Claude.
+This registers hooks for `PreToolUse`, `PostToolUse`, `Stop`, `StopFailure`, `Notification`, and `PermissionRequest` in `~/.claude/settings.json`. The hook script POSTs each event to `http://localhost:36787` in the background so it never slows Claude down.
 
-### Grant Accessibility permission
+## Usage
 
-Global keyboard shortcuts (Y/A/N/Esc) require Accessibility access:
+Once set up, just use Claude Code normally in your terminal. The menu bar updates automatically:
 
-**System Settings → Privacy & Security → Accessibility → ClaudeMenuBar → enable**
+- **Working** — shows which tool Claude is running
+- **Needs input** — dropdown appears with the permission message
+  - Click a button, or press **Y** (Allow once) / **A** (Allow all) / **N** (Deny)
+  - If the content is too long to display, check your terminal for details
+  - Press **Esc** to dismiss without responding (Claude keeps waiting)
+- **Done** — brief confirmation, then hides
 
-Restart the app after granting permission.
+When you select an option, ClaudeMenuBar switches back to your terminal and sends the response keystroke automatically.
 
 ## Manual testing
 
-With the app running, send events directly via curl:
+With the app running, simulate events via curl:
 
 ```bash
-# Working state
-curl -s -X POST http://localhost:36787/event \
+# Permission request — 3 options (Y/A/N)
+curl -s -X POST http://localhost:36787 \
   -H "Content-Type: application/json" \
-  -d '{"hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"ls"}}'
+  -d '{"hook_event_name":"PermissionRequest","tool_name":"Bash","tool_input":{"command":"rm -rf node_modules"},"permission_suggestions":[{"allow":"y"}]}'
 
-# Needs input
-curl -s -X POST http://localhost:36787/event \
+# Permission request — 2 options (Y/N)
+curl -s -X POST http://localhost:36787 \
   -H "Content-Type: application/json" \
-  -d '{"hook_event_name":"Stop","stop_reason":"input_required","message":"Allow this action?"}'
+  -d '{"hook_event_name":"PermissionRequest","tool_name":"Bash","tool_input":{"command":"npm install"}}'
+
+# Working state
+curl -s -X POST http://localhost:36787 \
+  -H "Content-Type: application/json" \
+  -d '{"hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"/tmp/test.py"}}'
 
 # Complete
-curl -s -X POST http://localhost:36787/event \
+curl -s -X POST http://localhost:36787 \
   -H "Content-Type: application/json" \
-  -d '{"hook_event_name":"Stop","stop_reason":"task_complete"}'
+  -d '{"hook_event_name":"Stop"}'
 ```
 
 ## Architecture
 
 ```
-ClaudeMenuBarApp        @main entry point
-└── MenuBarController   orchestrates all subsystems
-    ├── MenuBarPill     NSStatusItem in the menu bar
-    ├── DropdownPanel   NSPanel that appears below the pill
-    ├── StateManager    @Published AppState, auto-dismissal timers
-    ├── EventRouter     maps ClaudeEvent → AppState
-    ├── HTTPServer      NWListener on port 36787
-    ├── GlobalHotkeys   CGEventTap for Y/A/N/Esc
-    └── KeystrokeReplay CGEventPost to forward keystrokes to terminal
-```
-
-## Development
-
-```bash
-# Regenerate .xcodeproj after editing project.yml
-xcodegen generate
-
-# Build from terminal
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -project ClaudeMenuBar.xcodeproj \
-             -scheme ClaudeMenuBar \
-             -configuration Debug build
-
-# Run tests
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild test \
-             -project ClaudeMenuBar.xcodeproj \
-             -scheme ClaudeMenuBar \
-             -testPlan ClaudeMenuBar
+ClaudeMenuBarApp          @main entry point
+└── MenuBarController     orchestrates all subsystems
+    ├── MenuBarPill       NSStatusItem embedded in the menu bar
+    ├── DropdownPanel     NSPanel shown below the pill
+    ├── StateManager      @Published AppState + auto-dismissal timers
+    ├── EventRouter       maps ClaudeEvent → AppState
+    ├── HTTPServer        NWListener on port 36787
+    ├── GlobalHotkeys     NSEvent monitors for Y/A/N/Esc (active only during WaitingInput)
+    └── KeystrokeReplay   CGEventPost to forward responses to the terminal
 ```
 
 ## License

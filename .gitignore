@@ -1,4 +1,8 @@
 .superpowers/
+.claude/
+docs/
+CLAUDE.md
+project.yml
 .deriveddata/
 DerivedData/
 *.xcuserstate

@@ -57,10 +57,10 @@ final class EventRouterTests: XCTestCase {
 
     // MARK: - PermissionRequest
 
-    func test_permissionRequest_with_command_returns_waitingInput() {
+    func test_permissionRequest_with_suggestions_returns_3options() {
         let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
                             input: ToolInput(command: "rm -rf node_modules", filePath: nil, path: nil, description: nil),
-                            message: nil, options: nil)
+                            permissionSuggestions: [["allow": "y"]])
         guard case .waitingInput(let message, let options) = router.route(e) else {
             XCTFail("Expected .waitingInput"); return
         }
@@ -69,10 +69,19 @@ final class EventRouterTests: XCTestCase {
         XCTAssertEqual(options, InputOption.defaults)
     }
 
+    func test_permissionRequest_without_suggestions_returns_2options() {
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
+                            input: ToolInput(command: "npm install", filePath: nil, path: nil, description: nil))
+        guard case .waitingInput(_, let options) = router.route(e) else {
+            XCTFail("Expected .waitingInput"); return
+        }
+        XCTAssertEqual(options, InputOption.yesNo)
+    }
+
     func test_permissionRequest_with_filePath_returns_waitingInput() {
         let e = ClaudeEvent(event: "PermissionRequest", tool: "Write",
                             input: ToolInput(command: nil, filePath: "/etc/hosts", path: nil, description: nil),
-                            message: nil, options: nil)
+                            permissionSuggestions: [["allow": "y"]])
         guard case .waitingInput(let message, _) = router.route(e) else {
             XCTFail("Expected .waitingInput"); return
         }
@@ -81,12 +90,21 @@ final class EventRouterTests: XCTestCase {
     }
 
     func test_permissionRequest_no_detail_shows_tool_only() {
-        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
-                            input: nil, message: nil, options: nil)
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash")
         guard case .waitingInput(let message, _) = router.route(e) else {
             XCTFail("Expected .waitingInput"); return
         }
         XCTAssertEqual(message, "Allow Bash?")
+    }
+
+    func test_permissionRequest_long_detail_truncates() {
+        let long = String(repeating: "x", count: 100)
+        let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
+                            input: ToolInput(command: long, filePath: nil, path: nil, description: nil))
+        guard case .waitingInput(let message, _) = router.route(e) else {
+            XCTFail("Expected .waitingInput"); return
+        }
+        XCTAssertTrue(message.contains("too long"))
     }
 
     // MARK: - Notification

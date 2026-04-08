@@ -4,6 +4,9 @@ import SwiftUI
 final class MenuBarPill {
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
+    /// The status item button, used to anchor the popover.
+    var button: NSButton? { statusItem.button }
+
     /// Screen frame of the button, used to anchor the dropdown panel below it
     var buttonScreenFrame: NSRect? {
         guard let button = statusItem.button, let window = button.window else { return nil }

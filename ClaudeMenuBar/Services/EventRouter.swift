@@ -34,10 +34,18 @@ final class EventRouter {
                 ?? event.input?.filePath
                 ?? event.input?.path
                 ?? ""
-            let message = detail.isEmpty
-                ? "Allow \(tool)?"
-                : "Allow \(tool): \(detail)"
-            return .waitingInput(message: message, options: InputOption.defaults)
+            let message: String
+            if detail.isEmpty {
+                message = "Allow \(tool)?"
+            } else if detail.count > 80 {
+                message = "Allow \(tool)?\nContent is too long — check terminal for details."
+            } else {
+                message = "Allow \(tool): \(detail)"
+            }
+            let options = (event.permissionSuggestions?.isEmpty == false)
+                ? InputOption.defaults
+                : InputOption.yesNo
+            return .waitingInput(message: message, options: options)
 
         case "Notification":
             return .working(tool: "Notice", detail: event.message ?? "")

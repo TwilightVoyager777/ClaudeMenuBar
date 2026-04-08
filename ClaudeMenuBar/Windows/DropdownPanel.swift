@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 final class DropdownPanel {
-    private var panel: NSPanel?
+    private var panel: KeyablePanel?
 
     func show<Content: View>(view: Content, below buttonFrame: NSRect) {
         let width: CGFloat = 240
@@ -16,15 +16,16 @@ final class DropdownPanel {
         }
         panel!.contentView = NSHostingView(rootView: view)
         panel!.setFrame(frame, display: true)
-        panel!.orderFrontRegardless()
+        NSApp.activate(ignoringOtherApps: true)
+        panel!.makeKeyAndOrderFront(nil)
     }
 
     func hide() {
         panel?.orderOut(nil)
     }
 
-    private func makePanel() -> NSPanel {
-        let p = NSPanel(
+    private func makePanel() -> KeyablePanel {
+        let p = KeyablePanel(
             contentRect: .zero,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
@@ -37,4 +38,9 @@ final class DropdownPanel {
         p.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
         return p
     }
+}
+
+/// NSPanel that can become key even with .nonactivatingPanel style.
+final class KeyablePanel: NSPanel {
+    override var canBecomeKey: Bool { true }
 }

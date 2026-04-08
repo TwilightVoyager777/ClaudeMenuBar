@@ -36,7 +36,7 @@ struct DropdownView: View {
                 }
             }
 
-            Text("Press \(keyHint) to respond · Esc dismisses (Claude still waiting)")
+            Text("Press \(bareKeyHint) to respond · Esc dismisses")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -51,7 +51,7 @@ struct DropdownView: View {
         )
     }
 
-    private var keyHint: String {
-        options.map { $0.label }.joined(separator: " · ")
+    private var bareKeyHint: String {
+        options.map(\.label).joined(separator: " / ")
     }
 }
