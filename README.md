@@ -102,7 +102,8 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
   xcodebuild test \
              -project ClaudeMenuBar.xcodeproj \
-             -scheme ClaudeMenuBarTests
+             -scheme ClaudeMenuBar \
+             -testPlan ClaudeMenuBar
 ```
 
 ## License

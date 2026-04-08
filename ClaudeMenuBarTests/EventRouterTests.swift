@@ -22,13 +22,16 @@ final class EventRouterTests: XCTestCase {
         XCTAssertEqual(router.route(event), .working(tool: "Edit", detail: "src/main.swift"))
     }
 
-    func test_postToolUse_returns_working_state() {
+    func test_postToolUse_returns_nil_preserving_current_state() {
+        // PostToolUse means the tool finished. We return nil so the UI keeps
+        // showing the last PreToolUse state until the next event arrives,
+        // rather than incorrectly staying "working" forever on the finished tool.
         let event = ClaudeEvent(
             event: "PostToolUse", tool: "Read",
             input: ToolInput(command: nil, path: "README.md", description: nil),
             reason: nil, message: nil, options: nil
         )
-        XCTAssertEqual(router.route(event), .working(tool: "Read", detail: "README.md"))
+        XCTAssertNil(router.route(event))
     }
 
     func test_stop_input_required_returns_waitingInput_with_defaults() {
@@ -45,8 +48,7 @@ final class EventRouterTests: XCTestCase {
             reason: "input_required", message: "Choose approach",
             options: ["Upgrade to latest", "Keep current", "Specify version"]
         )
-        let state = router.route(event)
-        guard case .waitingInput(let message, let options) = state else {
+        guard case .waitingInput(let message, let options) = router.route(event) else {
             XCTFail("Expected waitingInput"); return
         }
         XCTAssertEqual(message, "Choose approach")
@@ -62,6 +64,17 @@ final class EventRouterTests: XCTestCase {
             reason: "task_complete", message: nil, options: nil
         )
         XCTAssertEqual(router.route(event), .complete)
+    }
+
+    func test_stop_unknown_reason_returns_silent_not_complete() {
+        // An error/cancelled/unknown stop must NOT show "Done" — it clears the UI.
+        for reason in ["error", "cancelled", "some_future_reason"] {
+            let event = ClaudeEvent(
+                event: "Stop", tool: nil, input: nil,
+                reason: reason, message: nil, options: nil
+            )
+            XCTAssertEqual(router.route(event), .silent, "Expected .silent for reason: \(reason)")
+        }
     }
 
     func test_notification_returns_working() {

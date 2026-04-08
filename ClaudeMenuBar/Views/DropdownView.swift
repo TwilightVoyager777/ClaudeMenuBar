@@ -36,7 +36,7 @@ struct DropdownView: View {
                 }
             }
 
-            Text("Press \(keyHint) to respond")
+            Text("Press \(keyHint) to respond · Esc dismisses (Claude still waiting)")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)

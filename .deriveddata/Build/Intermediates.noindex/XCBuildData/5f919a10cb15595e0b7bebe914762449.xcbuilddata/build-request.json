@@ -1,0 +1,69 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildAndRun"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "4462d2401559f5208f1b78684f7bb921edfdd3b5bd96854b35302e2ea21e5c10"
+    },
+    {
+      "guid" : "4462d2401559f5208f1b78684f7bb921bcc9a9ed3b742d489104c7670fc63242"
+    }
+  ],
+  "containerPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx26.2",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Build/Products",
+      "derivedDataPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata",
+      "indexDataStoreFolderPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "CODE_SIGN_IDENTITY" : "",
+          "CODE_SIGNING_REQUIRED" : "NO"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "CLANG_COVERAGE_MAPPING" : "YES",
+          "CLANG_PROFILE_DATA_DIRECTORY" : "/Users/dragonhope/Documents/Project/ClaudeMenuBar/.deriveddata/Build/ProfileData",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "test",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

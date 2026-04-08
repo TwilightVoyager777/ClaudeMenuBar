@@ -1,0 +1,15 @@
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Models/AppState.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Models/ClaudeEvent.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/ClaudeMenuBarApp.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Windows/DropdownPanel.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Views/DropdownView.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Services/EventRouter.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Services/GlobalHotkeys.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Services/HTTPServer.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Services/KeystrokeReplay.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/MenuBarController.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Windows/MenuBarPill.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Helpers/PillPositioner.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/State/StateManager.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Views/WaitingView.swift
+/Users/dragonhope/Documents/Project/ClaudeMenuBar/ClaudeMenuBar/Views/WorkingView.swift

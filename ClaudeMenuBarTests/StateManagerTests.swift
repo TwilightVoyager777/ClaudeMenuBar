@@ -21,18 +21,27 @@ final class StateManagerTests: XCTestCase {
         XCTAssertEqual(manager.state, .waitingInput(message: "Allow?", options: InputOption.defaults))
     }
 
-    func test_transition_to_complete_then_auto_silent() async throws {
-        let manager = StateManager()
+    func test_complete_does_not_auto_dismiss_immediately() async throws {
+        let manager = StateManager(completeDismissDelay: 0.2)
         manager.transition(to: .complete)
         XCTAssertEqual(manager.state, .complete)
-        try await Task.sleep(for: .milliseconds(100))
-        XCTAssertEqual(manager.state, .complete)
+        try await Task.sleep(for: .milliseconds(50))
+        XCTAssertEqual(manager.state, .complete, "Should still be .complete before delay elapses")
     }
 
-    func test_new_transition_cancels_complete_timer() {
-        let manager = StateManager()
+    func test_complete_auto_dismisses_after_delay() async throws {
+        let manager = StateManager(completeDismissDelay: 0.05)
+        manager.transition(to: .complete)
+        try await Task.sleep(for: .milliseconds(200))
+        XCTAssertEqual(manager.state, .silent, "Should auto-dismiss to .silent after delay")
+    }
+
+    func test_new_transition_cancels_auto_dismiss_timer() async throws {
+        let manager = StateManager(completeDismissDelay: 0.05)
         manager.transition(to: .complete)
         manager.transition(to: .working(tool: "Bash", detail: "test"))
+        try await Task.sleep(for: .milliseconds(200))
+        // Timer was cancelled; should still be .working, not .silent
         XCTAssertEqual(manager.state, .working(tool: "Bash", detail: "test"))
     }
 }

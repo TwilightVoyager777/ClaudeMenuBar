@@ -4,7 +4,16 @@ import Foundation
 final class StateManager: ObservableObject {
     @Published private(set) var state: AppState = .silent
 
+    private let completeDismissDelay: Double
+    private let waitingInputDismissDelay: Double
     private var autoTransitionTask: Task<Void, Never>?
+
+    /// Production init uses sensible defaults.
+    /// Tests can inject shorter delays to avoid slow assertions.
+    init(completeDismissDelay: Double = 3, waitingInputDismissDelay: Double = 300) {
+        self.completeDismissDelay = completeDismissDelay
+        self.waitingInputDismissDelay = waitingInputDismissDelay
+    }
 
     func transition(to newState: AppState) {
         autoTransitionTask?.cancel()
@@ -13,13 +22,9 @@ final class StateManager: ObservableObject {
 
         switch newState {
         case .complete:
-            // Auto-dismiss after 3 s
-            schedule(after: 3)
-
+            schedule(after: completeDismissDelay)
         case .waitingInput:
-            // Auto-dismiss after 5 min so it never hangs forever
-            schedule(after: 300)
-
+            schedule(after: waitingInputDismissDelay)
         default:
             break
         }

@@ -1,20 +1,18 @@
 #!/bin/bash
 set -e
 
-APP_NAME="ClaudeMenuBar"
-INSTALL_DIR="/Applications"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HOOK_DIR="$HOME/.claude/hooks"
 SETTINGS_FILE="$HOME/.claude/settings.json"
 HOOK_SCRIPT="$HOOK_DIR/claudemenubar-hook.sh"
-REPO_RAW="https://raw.githubusercontent.com/user/ClaudeMenuBar/main"  # TODO: update with actual GitHub username before publishing
 
-echo "Installing ClaudeMenuBar..."
+echo "Installing ClaudeMenuBar hooks..."
 
 # 1. Create hooks directory
 mkdir -p "$HOOK_DIR"
 
-# 2. Install hook script
-curl -fsSL "$REPO_RAW/scripts/claudemenubar-hook.sh" -o "$HOOK_SCRIPT"
+# 2. Copy hook script from this repo (no network required)
+cp "$SCRIPT_DIR/claudemenubar-hook.sh" "$HOOK_SCRIPT"
 chmod +x "$HOOK_SCRIPT"
 echo "  ✓ Hook script installed at $HOOK_SCRIPT"
 
@@ -43,7 +41,6 @@ with open(settings_path) as f:
 hooks = settings.setdefault("hooks", {})
 for event in ["PreToolUse", "PostToolUse", "Stop", "Notification"]:
     event_hooks = hooks.setdefault(event, [])
-    # Avoid duplicates
     if not any(h.get("command") == hook_json["command"] for h in event_hooks):
         event_hooks.append(hook_json)
 
@@ -55,5 +52,4 @@ PYEOF
 
 echo "  ✓ Claude Code hooks configured"
 echo ""
-echo "ClaudeMenuBar installed. Open ClaudeMenuBar.app to start."
-echo "Grant Accessibility permission when prompted."
+echo "Done. Open ClaudeMenuBar.app and grant Accessibility permission when prompted."
