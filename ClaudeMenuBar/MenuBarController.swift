@@ -33,11 +33,21 @@ final class MenuBarController: NSObject, ObservableObject {
         let menu = NSMenu()
         menu.addItem(loginItem)
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(withTitle: "Test: Working",   action: #selector(testWorking),      keyEquivalent: "").target = self
+        menu.addItem(withTitle: "Test: WaitInput", action: #selector(testWaitingInput), keyEquivalent: "").target = self
+        menu.addItem(withTitle: "Test: Complete",  action: #selector(testComplete),     keyEquivalent: "").target = self
+        menu.addItem(withTitle: "Test: Silent",    action: #selector(testSilent),       keyEquivalent: "").target = self
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit ClaudeMenuBar",
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         pill.statusItem.menu = menu
     }
+
+    @objc private func testWorking()      { stateManager.transition(to: .working(tool: "Bash", detail: "ls -la")) }
+    @objc private func testWaitingInput() { stateManager.transition(to: .waitingInput(message: "Allow Bash: rm -rf node_modules?", options: InputOption.defaults)) }
+    @objc private func testComplete()     { stateManager.transition(to: .complete) }
+    @objc private func testSilent()       { stateManager.transition(to: .silent) }
 
     @objc private func toggleLaunchAtLogin(_ sender: NSMenuItem) {
         do {
