@@ -40,7 +40,7 @@ matcher_group = {
 }
 
 # Subscribe to all relevant events including PermissionRequest
-for event in ["PreToolUse", "PostToolUse", "Stop", "Notification", "PermissionRequest"]:
+for event in ["PreToolUse", "PostToolUse", "Stop", "StopFailure", "Notification", "PermissionRequest"]:
     event_hooks = hooks.setdefault(event, [])
     # Avoid duplicates — check every existing matcher group's inner hooks list
     already = any(
