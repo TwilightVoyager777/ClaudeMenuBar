@@ -6,18 +6,19 @@ struct ClaudeEvent: Codable {
     let input: ToolInput?
     let message: String?
     let options: [String]?
-    let permissionSuggestions: [[String: String]]?  // swiftlint:disable:this discouraged_optional_collection
+    /// True when the payload contains a non-empty permission_suggestions array.
+    let hasPermissionSuggestions: Bool
 
     /// Memberwise-init with defaults so tests can omit fields they don't care about.
     init(event: String, tool: String? = nil, input: ToolInput? = nil,
          message: String? = nil, options: [String]? = nil,
-         permissionSuggestions: [[String: String]]? = nil) {
+         hasPermissionSuggestions: Bool = false) {
         self.event = event
         self.tool = tool
         self.input = input
         self.message = message
         self.options = options
-        self.permissionSuggestions = permissionSuggestions
+        self.hasPermissionSuggestions = hasPermissionSuggestions
     }
 
     enum CodingKeys: String, CodingKey {
@@ -27,6 +28,26 @@ struct ClaudeEvent: Codable {
         case message
         case options
         case permissionSuggestions = "permission_suggestions"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        event = try c.decode(String.self, forKey: .event)
+        tool = try c.decodeIfPresent(String.self, forKey: .tool)
+        input = try c.decodeIfPresent(ToolInput.self, forKey: .input)
+        message = try c.decodeIfPresent(String.self, forKey: .message)
+        options = try c.decodeIfPresent([String].self, forKey: .options)
+        // Only check existence — the actual structure varies and we don't need its contents.
+        hasPermissionSuggestions = c.contains(.permissionSuggestions)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(event, forKey: .event)
+        try c.encodeIfPresent(tool, forKey: .tool)
+        try c.encodeIfPresent(input, forKey: .input)
+        try c.encodeIfPresent(message, forKey: .message)
+        try c.encodeIfPresent(options, forKey: .options)
     }
 }
 

@@ -12,6 +12,8 @@ final class MenuBarController: NSObject, ObservableObject {
     private let dropdown = DropdownPanel()
     private let hotkeys = GlobalHotkeys()
     private var cancellable: AnyCancellable?
+    /// The app that was frontmost before the dropdown stole focus.
+    private var previousApp: NSRunningApplication?
 
     override init() {
         super.init()
@@ -62,12 +64,22 @@ final class MenuBarController: NSObject, ObservableObject {
     private func setupHTTPServer() {
         httpServer.onEventData = { [weak self] data in
             guard let self else { return }
-            guard let event = try? JSONDecoder().decode(ClaudeEvent.self, from: data) else {
+            print("[HTTP] received \(data.count) bytes")
+            let event: ClaudeEvent
+            do {
+                event = try JSONDecoder().decode(ClaudeEvent.self, from: data)
+            } catch {
+                print("[HTTP] DECODE FAILED: \(error)")
+                print("[HTTP] raw: \(String(data: data.prefix(300), encoding: .utf8) ?? "?")")
                 return
             }
+            print("[HTTP] event: \(event.event) tool: \(event.tool ?? "-")")
             Task { @MainActor in
                 if let newState = self.eventRouter.route(event) {
+                    print("[State] → \(newState)")
                     self.stateManager.transition(to: newState)
+                } else {
+                    print("[State] route returned nil")
                 }
             }
         }
@@ -115,14 +127,18 @@ final class MenuBarController: NSObject, ObservableObject {
             hotkeys.disable()
             pill.hide()
             dropdown.hide()
+            restorePreviousApp()
 
         case .working(let tool, let detail):
             hotkeys.disable()
             dropdown.hide()
+            restorePreviousApp()
             let width = min(max(CGFloat(tool.count) * 8 + 60, 80), 180)
             pill.show(view: WorkingView(tool: tool, detail: detail), pillWidth: width)
 
         case .waitingInput(let message, let options):
+            // Capture the frontmost app BEFORE the dropdown steals focus
+            previousApp = NSWorkspace.shared.frontmostApplication
             hotkeys.enable()
             pill.show(view: WaitingAnchorView(), pillWidth: 160)
             let dropView = DropdownView(message: message, options: options) { [weak self] option in
@@ -139,6 +155,7 @@ final class MenuBarController: NSObject, ObservableObject {
         case .complete:
             hotkeys.disable()
             dropdown.hide()
+            restorePreviousApp()
             pill.show(view: CompleteView(), pillWidth: 120)
         }
     }
@@ -147,16 +164,38 @@ final class MenuBarController: NSObject, ObservableObject {
         guard case .waitingInput(_, let options) = stateManager.state,
               let index = options.firstIndex(where: { $0.id == optionId }) else { return }
         let terminalKey = "\(index + 1)"
+        let targetApp = previousApp
+        previousApp = nil   // Clear so render(.silent) won't double-activate
         stateManager.transition(to: .silent)
-        activateTerminal()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+        activateApp(targetApp)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             KeystrokeReplay.type(terminalKey)
         }
     }
 
-    // MARK: - Terminal activation
+    // MARK: - App activation
 
-    private func activateTerminal() {
+    /// Re-activate the previously frontmost app if available, otherwise fall back
+    /// to searching for a known terminal.
+    private func activateApp(_ app: NSRunningApplication?) {
+        if let app {
+            if #available(macOS 14.0, *) {
+                app.activate()
+            } else {
+                app.activate(options: .activateIgnoringOtherApps)
+            }
+        } else {
+            activateTerminalFallback()
+        }
+    }
+
+    private func restorePreviousApp() {
+        guard let app = previousApp else { return }
+        previousApp = nil
+        activateApp(app)
+    }
+
+    private func activateTerminalFallback() {
         let terminalBundleIDs = [
             "com.mitchellh.ghostty",
             "com.apple.Terminal",
@@ -169,7 +208,7 @@ final class MenuBarController: NSObject, ObservableObject {
         let running = NSWorkspace.shared.runningApplications
         for id in terminalBundleIDs {
             if let app = running.first(where: { $0.bundleIdentifier == id }) {
-                app.activate(options: .activateIgnoringOtherApps)
+                activateApp(app)
                 return
             }
         }

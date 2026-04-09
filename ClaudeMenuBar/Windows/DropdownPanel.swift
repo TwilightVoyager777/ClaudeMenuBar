@@ -2,45 +2,75 @@ import AppKit
 import SwiftUI
 
 final class DropdownPanel {
-    private var panel: KeyablePanel?
+    private var window: ClickThroughWindow?
 
     func show<Content: View>(view: Content, below buttonFrame: NSRect) {
-        let width: CGFloat = 240
-        let estimatedHeight: CGFloat = 120
-        let x = buttonFrame.midX - width / 2
-        let y = buttonFrame.minY - estimatedHeight
-        let frame = NSRect(x: x, y: y, width: width, height: estimatedHeight)
-
-        if panel == nil {
-            panel = makePanel()
+        if window == nil {
+            window = makeWindow()
         }
-        panel!.contentView = NSHostingView(rootView: view)
-        panel!.setFrame(frame, display: true)
-        NSApp.activate(ignoringOtherApps: true)
-        panel!.makeKeyAndOrderFront(nil)
+
+        let hosting = FirstMouseHostingView(rootView: view)
+        window!.contentView = hosting
+
+        // Use the actual SwiftUI content size instead of a hardcoded estimate
+        let contentSize = hosting.fittingSize
+        let gap: CGFloat = 4
+        let x = buttonFrame.midX - contentSize.width / 2
+        let y = buttonFrame.minY - gap - contentSize.height
+        let frame = NSRect(x: x, y: y, width: contentSize.width, height: contentSize.height)
+
+        window!.setFrame(frame, display: true)
+        window!.orderFrontRegardless()
+
+        // Activate the app so the window can become key
+        NSApp.setActivationPolicy(.regular)
+        if #available(macOS 14.0, *) {
+            NSApp.activate()
+        } else {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        window!.makeKeyAndOrderFront(nil)
     }
 
     func hide() {
-        panel?.orderOut(nil)
+        window?.orderOut(nil)
+        NSApp.setActivationPolicy(.accessory)
     }
 
-    private func makePanel() -> KeyablePanel {
-        let p = KeyablePanel(
+    private func makeWindow() -> ClickThroughWindow {
+        let w = ClickThroughWindow(
             contentRect: .zero,
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: .borderless,
             backing: .buffered,
             defer: false
         )
-        p.level = .init(Int(CGWindowLevelForKey(.statusWindow)) + 1)
-        p.backgroundColor = .clear
-        p.isOpaque = false
-        p.hasShadow = true
-        p.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
-        return p
+        w.isMovableByWindowBackground = false
+        w.level = .init(Int(CGWindowLevelForKey(.statusWindow)) + 1)
+        w.backgroundColor = .clear
+        w.isOpaque = false
+        w.hasShadow = true
+        w.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
+        return w
     }
 }
 
-/// NSPanel that can become key even with .nonactivatingPanel style.
-final class KeyablePanel: NSPanel {
+/// Window that accepts first mouse click and can become key.
+final class ClickThroughWindow: NSWindow {
     override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+
+    override func mouseDown(with event: NSEvent) {
+        // Make ourselves key on first click, then forward the event
+        if !isKeyWindow {
+            makeKey()
+        }
+        super.mouseDown(with: event)
+    }
+}
+
+/// NSHostingView that accepts clicks even when the window isn't key.
+final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
 }

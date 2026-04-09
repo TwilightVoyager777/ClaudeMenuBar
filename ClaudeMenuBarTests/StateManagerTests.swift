@@ -36,6 +36,28 @@ final class StateManagerTests: XCTestCase {
         XCTAssertEqual(manager.state, .silent, "Should auto-dismiss to .silent after delay")
     }
 
+    func test_waitingInput_ignores_working_transition() {
+        let manager = StateManager()
+        manager.transition(to: .waitingInput(message: "Allow?", options: InputOption.defaults))
+        manager.transition(to: .working(tool: "Bash", detail: "ls"))
+        XCTAssertEqual(manager.state, .waitingInput(message: "Allow?", options: InputOption.defaults),
+                       "working events should not dismiss waitingInput")
+    }
+
+    func test_waitingInput_allows_silent_transition() {
+        let manager = StateManager()
+        manager.transition(to: .waitingInput(message: "Allow?", options: InputOption.defaults))
+        manager.transition(to: .silent)
+        XCTAssertEqual(manager.state, .silent)
+    }
+
+    func test_waitingInput_allows_complete_transition() {
+        let manager = StateManager()
+        manager.transition(to: .waitingInput(message: "Allow?", options: InputOption.defaults))
+        manager.transition(to: .complete)
+        XCTAssertEqual(manager.state, .complete)
+    }
+
     func test_new_transition_cancels_auto_dismiss_timer() async throws {
         let manager = StateManager(completeDismissDelay: 0.05)
         manager.transition(to: .complete)

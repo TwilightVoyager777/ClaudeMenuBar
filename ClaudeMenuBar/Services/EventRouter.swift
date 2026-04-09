@@ -42,7 +42,7 @@ final class EventRouter {
             } else {
                 message = "Allow \(tool): \(detail)"
             }
-            let options = (event.permissionSuggestions?.isEmpty == false)
+            let options = event.hasPermissionSuggestions
                 ? InputOption.defaults
                 : InputOption.yesNo
             return .waitingInput(message: message, options: options)

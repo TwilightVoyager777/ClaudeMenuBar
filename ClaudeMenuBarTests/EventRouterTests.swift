@@ -60,7 +60,7 @@ final class EventRouterTests: XCTestCase {
     func test_permissionRequest_with_suggestions_returns_3options() {
         let e = ClaudeEvent(event: "PermissionRequest", tool: "Bash",
                             input: ToolInput(command: "rm -rf node_modules", filePath: nil, path: nil, description: nil),
-                            permissionSuggestions: [["allow": "y"]])
+                            hasPermissionSuggestions: true)
         guard case .waitingInput(let message, let options) = router.route(e) else {
             XCTFail("Expected .waitingInput"); return
         }
@@ -81,7 +81,7 @@ final class EventRouterTests: XCTestCase {
     func test_permissionRequest_with_filePath_returns_waitingInput() {
         let e = ClaudeEvent(event: "PermissionRequest", tool: "Write",
                             input: ToolInput(command: nil, filePath: "/etc/hosts", path: nil, description: nil),
-                            permissionSuggestions: [["allow": "y"]])
+                            hasPermissionSuggestions: true)
         guard case .waitingInput(let message, _) = router.route(e) else {
             XCTFail("Expected .waitingInput"); return
         }

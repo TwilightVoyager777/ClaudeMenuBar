@@ -39,11 +39,13 @@ final class GlobalHotkeys {
             return event
         }
 
-        // Global: works from other apps — ⌃⌥⌘Y/A/N (needs Accessibility)
+        // Global: works from other apps — bare Y/A/N or ⌃⌥⌘Y/A/N (needs Accessibility)
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return }
             let mods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-            guard mods.contains(self.globalModifiers),
+            let isBareLetter = mods.isEmpty || mods == .capsLock
+            let isGlobalCombo = mods.contains(self.globalModifiers)
+            guard isBareLetter || isGlobalCombo,
                   let key = self.keyMap[event.keyCode] else { return }
             self.onKey?(key)
         }
