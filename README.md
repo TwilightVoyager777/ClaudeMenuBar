@@ -23,36 +23,36 @@ The app detects whether a request has 2 options (Yes / No) or 3 options (Yes / A
 
 - macOS 13 (Ventura) or later
 - [Claude Code](https://claude.ai/code) CLI installed
-- Xcode 15+ to build from source
+- Xcode 15+ (for building from source)
 
-## Setup
-
-### 1. Build and run
-
-Open `ClaudeMenuBar.xcodeproj` in Xcode and press **Cmd+R**.
-
-### 2. Install hooks
-
-Run once to wire ClaudeMenuBar into Claude Code:
+## Install
 
 ```bash
-bash scripts/install.sh
+git clone https://github.com/TwilightVoyager777/ClaudeMenuBar.git
+cd ClaudeMenuBar
+bash scripts/build-and-install.sh
 ```
 
-This registers hooks for `PreToolUse`, `PostToolUse`, `Stop`, `StopFailure`, `Notification`, and `PermissionRequest` in `~/.claude/settings.json`. The hook script POSTs each event to `http://localhost:36787` in the background so it never slows Claude down.
+This builds a Release version, registers Claude Code hooks, generates a DMG installer, and opens it. Drag **ClaudeMenuBar.app** into **Applications**, then launch it.
+
+After launching, go to **System Settings → Privacy & Security → Accessibility** and grant permission to ClaudeMenuBar. This is required for sending keystrokes to your terminal.
+
+> You can also open `ClaudeMenuBar.xcodeproj` in Xcode and press **Cmd+R** to build and run directly, then run `bash scripts/install.sh` to register hooks. Note: the Xcode debug build and the installed app are separate entries in the Accessibility list — grant permission to whichever one you're running.
 
 ## Usage
 
-Once set up, just use Claude Code normally in your terminal. The menu bar updates automatically:
+Once installed, just use Claude Code normally in your terminal. The menu bar updates automatically:
 
 - **Working** — shows which tool Claude is running
-- **Needs input** — dropdown appears with the permission message
+- **Needs input** — dropdown appears with the permission message and stays until you respond
   - Click a button, or press **Y** (Allow once) / **A** (Allow all) / **N** (Deny)
+  - The dropdown won't disappear due to new events — only your response or **Esc** dismisses it
   - If the content is too long to display, check your terminal for details
-  - Press **Esc** to dismiss without responding (Claude keeps waiting)
 - **Done** — brief confirmation, then hides
 
-When you select an option, ClaudeMenuBar switches back to your terminal and sends the response keystroke automatically.
+When you select an option, ClaudeMenuBar switches back to the previously active app and sends the response keystroke automatically.
+
+To launch at login, click the `>_` menu bar icon and select **Launch at Login**.
 
 ## Manual testing
 
@@ -87,12 +87,16 @@ ClaudeMenuBarApp          @main entry point
 └── MenuBarController     orchestrates all subsystems
     ├── MenuBarPill       NSStatusItem embedded in the menu bar
     ├── DropdownPanel     NSPanel shown below the pill
-    ├── StateManager      @Published AppState + auto-dismissal timers
+    ├── StateManager      @Published AppState + auto-dismiss for complete state
     ├── EventRouter       maps ClaudeEvent → AppState
     ├── HTTPServer        NWListener on port 36787
     ├── GlobalHotkeys     NSEvent monitors for Y/A/N/Esc (active only during WaitingInput)
     └── KeystrokeReplay   CGEventPost to forward responses to the terminal
 ```
+
+## Feedback
+
+This project is in early development. If you run into bugs or have feature requests, feel free to [open an issue](../../issues). Pull requests are also welcome!
 
 ## License
 

@@ -23,36 +23,36 @@
 
 - macOS 13 (Ventura) 或更高版本
 - 已安装 [Claude Code](https://claude.ai/code) CLI
-- Xcode 15+ （从源码构建）
+- Xcode 15+（从源码构建）
 
 ## 安装
 
-### 1. 构建并运行
-
-在 Xcode 中打开 `ClaudeMenuBar.xcodeproj`，按 **Cmd+R** 运行。
-
-### 2. 安装 Hooks
-
-运行一次以将 ClaudeMenuBar 接入 Claude Code：
-
 ```bash
-bash scripts/install.sh
+git clone https://github.com/TwilightVoyager777/ClaudeMenuBar.git
+cd ClaudeMenuBar
+bash scripts/build-and-install.sh
 ```
 
-此脚本会在 `~/.claude/settings.json` 中注册 `PreToolUse`、`PostToolUse`、`Stop`、`StopFailure`、`Notification` 和 `PermissionRequest` 的 hooks。Hook 脚本会在后台将每个事件 POST 到 `http://localhost:36787`，不会拖慢 Claude 的执行速度。
+脚本会构建 Release 版本、注册 Claude Code hooks 并生成 DMG 安装包。打开后将 **ClaudeMenuBar.app** 拖入 **Applications** 文件夹，然后启动即可。
+
+启动后需要前往 **系统设置 → 隐私与安全性 → 辅助功能**，授权 ClaudeMenuBar。这是发送按键到终端的必要权限。
+
+> 也可以在 Xcode 中打开 `ClaudeMenuBar.xcodeproj`，按 **Cmd+R** 直接运行，再执行 `bash scripts/install.sh` 注册 hooks。注意：Xcode 调试版本和安装版本在辅助功能列表中是两个不同的条目，需要分别授权。
 
 ## 使用方法
 
 安装完成后，正常在终端中使用 Claude Code 即可，菜单栏会自动更新：
 
 - **执行中** — 显示当前运行的工具名称
-- **等待输入** — 弹出下拉面板，显示权限请求信息
+- **等待输入** — 弹出下拉面板，显示权限请求信息，面板会一直保持直到你响应
   - 点击按钮，或按 **Y**（允许一次）/ **A**（始终允许）/ **N**（拒绝）
+  - 面板不会因新事件到达而消失——只有你的响应或 **Esc** 才能关闭它
   - 如果内容过长无法显示，请到终端查看详情
-  - 按 **Esc** 关闭面板（不响应，Claude 继续等待）
 - **完成** — 短暂提示后自动隐藏
 
-选择选项后，ClaudeMenuBar 会自动切回终端并发送对应的响应按键。
+选择选项后，ClaudeMenuBar 会自动切回之前活跃的应用并发送对应的响应按键。
+
+如需开机自启，点击菜单栏 `>_` 图标，选择 **Launch at Login**。
 
 ## 手动测试
 
@@ -93,6 +93,10 @@ ClaudeMenuBarApp          @main 入口
     ├── GlobalHotkeys     NSEvent 监听器，处理 Y/A/N/Esc（仅在等待输入时激活）
     └── KeystrokeReplay   CGEventPost 将响应按键转发到终端
 ```
+
+## 反馈
+
+项目仍在早期开发中，如果遇到 Bug 或有功能建议，欢迎 [提交 Issue](../../issues)，也欢迎 PR！
 
 ## 许可证
 
