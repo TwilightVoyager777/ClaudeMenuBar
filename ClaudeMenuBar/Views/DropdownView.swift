@@ -19,7 +19,7 @@ struct DropdownView: View {
                 }
             }
 
-            Text("Press \(bareKeyHint) to respond · Esc dismisses")
+            Text("Press \(bareKeyHint) or ⌥⌘\(bareKeyHint) · Esc dismisses")
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)

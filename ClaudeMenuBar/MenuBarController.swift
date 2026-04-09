@@ -164,10 +164,10 @@ final class MenuBarController: NSObject, ObservableObject {
         guard case .waitingInput(_, let options) = stateManager.state,
               let index = options.firstIndex(where: { $0.id == optionId }) else { return }
         let terminalKey = "\(index + 1)"
-        let targetApp = previousApp
         previousApp = nil   // Clear so render(.silent) won't double-activate
         stateManager.transition(to: .silent)
-        activateApp(targetApp)
+        // Always activate a terminal — previousApp might be a browser or other non-terminal app.
+        activateTerminal()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             KeystrokeReplay.type(terminalKey)
         }
@@ -175,38 +175,35 @@ final class MenuBarController: NSObject, ObservableObject {
 
     // MARK: - App activation
 
-    /// Re-activate the previously frontmost app if available, otherwise fall back
-    /// to searching for a known terminal.
-    private func activateApp(_ app: NSRunningApplication?) {
-        if let app {
-            if #available(macOS 14.0, *) {
-                app.activate()
-            } else {
-                app.activate(options: .activateIgnoringOtherApps)
-            }
+    private static let terminalBundleIDs = [
+        "com.mitchellh.ghostty",
+        "com.apple.Terminal",
+        "com.googlecode.iterm2",
+        "dev.warp.Warp-Stable",
+        "io.alacritty",
+        "net.kovidgoyal.kitty",
+        "com.github.wez.wezterm",
+    ]
+
+    private func activateApp(_ app: NSRunningApplication) {
+        if #available(macOS 14.0, *) {
+            app.activate()
         } else {
-            activateTerminalFallback()
+            app.activate(options: .activateIgnoringOtherApps)
         }
     }
 
+    /// Restore the user to whatever app they were in before the dropdown appeared.
     private func restorePreviousApp() {
         guard let app = previousApp else { return }
         previousApp = nil
         activateApp(app)
     }
 
-    private func activateTerminalFallback() {
-        let terminalBundleIDs = [
-            "com.mitchellh.ghostty",
-            "com.apple.Terminal",
-            "com.googlecode.iterm2",
-            "dev.warp.Warp-Stable",
-            "io.alacritty",
-            "net.kovidgoyal.kitty",
-            "com.github.wez.wezterm",
-        ]
+    /// Find and activate a running terminal app.
+    private func activateTerminal() {
         let running = NSWorkspace.shared.runningApplications
-        for id in terminalBundleIDs {
+        for id in Self.terminalBundleIDs {
             if let app = running.first(where: { $0.bundleIdentifier == id }) {
                 activateApp(app)
                 return

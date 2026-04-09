@@ -46,6 +46,7 @@ Once installed, just use Claude Code normally in your terminal. The menu bar upd
 - **Working** — shows which tool Claude is running
 - **Needs input** — dropdown appears with the permission message and stays until you respond
   - Click a button, or press **Y** (Allow once) / **A** (Allow all) / **N** (Deny)
+  - Global hotkeys (**⌥⌘Y / ⌥⌘A / ⌥⌘N**) are available but may not work reliably in all apps due to macOS Secure Input restrictions. Clicking the dropdown buttons is the most reliable way to respond.
   - The dropdown won't disappear due to new events — only your response or **Esc** dismisses it
   - If the content is too long to display, check your terminal for details
 - **Done** — brief confirmation, then hides
